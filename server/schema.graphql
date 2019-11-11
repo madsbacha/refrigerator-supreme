@@ -1,0 +1,54 @@
+type Query {
+  drinks(order: Order, first: Int, after: Int): [Item!]
+  ratings(itemId: Int): [Rating!]
+  comments(itemId: Int, userId: Int, first: Int, after: Int): [Comment!]
+  me: User
+}
+
+enum Order {
+  ASC
+  DESC
+}
+
+type Item {
+  id: Int
+  name: String
+  image: String
+  rating: Float
+  comments: [Comment!]!
+}
+
+type User {
+  id: Int
+  email: String
+  ratings: [Rating!]!
+  comments: [Comment!]!
+}
+
+type Rating {
+  id: Int
+  item: Item
+  user: User
+  rating: Float
+}
+
+type Comment {
+  id: Int
+  item: Item
+  text: String
+  author: User
+}
+
+type Response {
+  success: Boolean
+}
+
+type Mutation {
+  CreateUser(email: String!, password: String!): User
+  CreateItem(name: String!, image: String!): Item
+  DeleteItem(itemId: Int!): Response
+  UpdateItem(itemId: Int!, name: String, image: String): Item
+  RateItem(itemId: Int, rating: Float): Rating
+  CreateComment(itemId: Int, comment: String): Comment
+  DeleteComment(commentId: Int!): Response
+}
