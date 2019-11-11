@@ -43,8 +43,15 @@ type Response {
   success: Boolean
 }
 
+type LoginResponse {
+  success: Boolean
+  token: String
+}
+
 type Mutation {
-  CreateUser(email: String!, password: String!): User
+  Login(email: String!, password: String!): LoginResponse
+  CreateUser(email: String!, password: String!): LoginResponse
+  UpdateUser(password: String!): User
   CreateItem(name: String!, image: String!): Item
   DeleteItem(itemId: Int!): Response
   UpdateItem(itemId: Int!, name: String, image: String): Item
