@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/server/vendor/leocavalcante/siler" />
+      <path value="$PROJECT_DIR$/server/vendor/catfan/medoo" />
+      <path value="$PROJECT_DIR$/server/vendor/composer" />
+      <path value="$PROJECT_DIR$/server/vendor/webonyx/graphql-php" />
+      <path value="$PROJECT_DIR$/server/vendor/firebase/php-jwt" />
+    </include_path>
+  </component>
+</project>
