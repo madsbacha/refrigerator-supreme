@@ -1,6 +1,7 @@
 {
   "require": {
     "webonyx/graphql-php": "^0.13.8",
-    "leocavalcante/siler": "^1.6"
+    "leocavalcante/siler": "^1.6",
+    "catfan/medoo": "^1.7"
   }
 }
