@@ -5,7 +5,9 @@ $jwt = include __DIR__ . '/jwt.php';
 
 return [
     'Query' => [
-        'me' => null,
+        'me' => function ($root, $args, $context) use ($db) {
+            return $context['user'];
+        }
     ],
     'Mutation' => [
         'CreateUser' => function ($root, $args) use ($db, $jwt) {
