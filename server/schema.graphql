@@ -46,6 +46,7 @@ type Response {
 type LoginResponse {
   success: Boolean
   token: String
+  user: User
 }
 
 type Mutation {
