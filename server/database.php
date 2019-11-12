@@ -9,7 +9,7 @@ $database = new Medoo([
   'server' => 'localhost',
   'username' => '',
   'password' => '',
-  'prefix' => 'refrigerator_'
+  'prefix' => ''
 ]);
 
 $userById = function ($id) use ($database) {
