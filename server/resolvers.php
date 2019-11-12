@@ -44,6 +44,50 @@ return [
                 'user' => $user,
                 'token' => $token
             ];
+        },
+        'UpdateUser' => function ($root, $args, $context) use ($db) {
+            if (!$context['user']) {
+                throw new Error('Unauthorized');
+            }
+            $password = password_hash($args['password'], PASSWORD_DEFAULT);
+            $db->update('users', compact('password'), ['id'=>$context['user']['id']]);
+            return $context['user'];
+        },
+        'CreateItem' => function ($root, $args, $context) use ($db) {
+            if (!$context['user']) {
+                throw new Error('Unauthorized');
+            }
+            $name = $args['name'];
+            $image = $args['image'];
+            // TODO: Make sure the user has permission to create new items
+            $db->insert('items', compact('name', 'image'));
+            return $db->get('items', ['name', 'image'], ['id' => $db->lastInsertId()]);
+        },
+        'DeleteItem' => function ($root, $args, $context) use ($db) {
+            if (!$context['user']) {
+                throw new Error('Unauthorized');
+            }
+            $id = $args['itemId'];
+            $data = $db->delete('items', compact('id'));
+            return [ 'success' => $data->rowCount() > 0 ];
+        },
+        'UpdateItem' => function ($root, $args, $context) use ($db) {
+            if (!$context['user']) {
+                throw new Error('Unauthorized');
+            }
+            $id = $args['itemId'];
+            $data = [];
+            if ($args['image']) {
+                $data['image'] = $args['image'];
+            }
+            if ($args['name']) {
+                $data['name'] = $args['name'];
+            }
+            if (count($data) == 0) {
+                return [ 'success' => true ];
+            }
+            $data = $db->update('items', $data, compact('id'));
+            return [ 'success' => $data->rowCount() > 0 ];
         }
     ]
 ];
