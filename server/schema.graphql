@@ -56,7 +56,7 @@ type Mutation {
   CreateItem(name: String!, image: String!): Item
   DeleteItem(itemId: Int!): Response
   UpdateItem(itemId: Int!, name: String, image: String): Item
-  RateItem(itemId: Int, rating: Float): Rating
-  CreateComment(itemId: Int, comment: String): Comment
+  RateItem(itemId: Int!, rating: Float!): Rating
+  CreateComment(itemId: Int!, comment: String!): Comment
   DeleteComment(commentId: Int!): Response
 }
