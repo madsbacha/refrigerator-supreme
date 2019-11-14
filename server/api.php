@@ -17,7 +17,7 @@ $context = [
 $auth_header = Request\header('Authorization');
 if (startsWith($auth_header, 'JWT ')) {
     $token = substr($auth_header, strlen('JWT '));
-    $jwt = include __DIR__ . '/jwt.php';
+    $jwt = include __DIR__ . '/util/jwt.php';
     try {
         $decoded = $jwt::decode($token);
         if ($decoded) {
@@ -32,7 +32,7 @@ if (startsWith($auth_header, 'JWT ')) {
 // Respond only for POST requests
 if (Request\method_is('post')) {
     // Retrive the Schema
-    $schema = include __DIR__.'/schema.php';
+    $schema = include __DIR__ . '/schema/schema.php';
 
     // Give it to siler
     GraphQL\init($schema, null, $context);

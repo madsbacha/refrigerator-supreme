@@ -2,7 +2,7 @@
 return [
     'database' => [
         'database_type' => 'sqlite',
-        'database_file' => 'database.sqlite',
+        'database_file' => __DIR__.'/database.sqlite',
         'database_name' => 'name',
         'server' => 'localhost',
         'username' => '',
