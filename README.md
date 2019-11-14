@@ -7,6 +7,6 @@ php -S localhost:8080 server/api.php
 
 ## TODO
 
-- [ ] Implement barebones database connection
-- [ ] Implement authentication with JWT
-- [ ] Hook up the schema with the database
+- [ ] Return errors when errors happen instead of null
+- [ ] Implement privileges
+- [ ] Restrict "CreateItem" to admins
