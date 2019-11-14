@@ -1,41 +1,41 @@
 <?php
 
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use Medoo\Medoo;
 
-class SortOrderEnum extends EnumType
-{
-    public function __construct()
-    {
-        parent::__construct([
-            'description' => 'The ordering of the sort',
-            'values' => [
-                'ASC' => [
-                    'value' => 0,
-                    'description' => 'Ascending order'
-                ],
-                'DESC' => [
-                    'value' => 1,
-                    'description' => 'Descending order'
-                ]
-            ]
-        ]);
-    }
-}
 
 class ItemType extends ObjectType
 {
-    public function __construct(TypeRegistry $types)
+    public function __construct(TypeRegistry $types, Medoo $db)
     {
         parent::__construct([
-            'fields' => function () use ($types) {
+            'fields' => function () use ($types, $db) {
                 return [
                     'id' => Type::id(),
                     'name' => Type::string(),
                     'image' => Type::string(),
-                    'rating' => Type::float(),
-                    'comments' => Type::listOf($types->Comment())
+                    'rating' => [
+                        'type' => Type::float(),
+                        'resolve' => function ($rootValue) use ($db) {
+                            return $db->avg('ratings', 'rating', ['item_id' => $rootValue['id']]);
+                        }
+                    ],
+                    'ratings' => [
+                        'type' => Type::listOf($types->Rating()),
+                        'resolve' => function ($rootValue) use ($db) {
+                            return $db->select('ratings', ['id', 'item_id', 'user_id', 'rating'], ['item_id' => $rootValue['id']]);
+                        }
+                    ],
+                    'comments' => [
+                        'type' => Type::listOf($types->Comment()),
+                        'resolve' => function ($rootValue) use ($db) {
+                            return $db->select(
+                                'comments',
+                                ['id', 'user_id', 'item_id', 'text'],
+                                ['item_id' => $rootValue['id']]);
+                        }
+                    ]
                 ];
             }
         ]);
@@ -44,14 +44,24 @@ class ItemType extends ObjectType
 
 class RatingType extends ObjectType
 {
-    public function __construct(TypeRegistry $types)
+    public function __construct(TypeRegistry $types, Medoo $db)
     {
         parent::__construct([
-            'fields' => function () use ($types) {
+            'fields' => function () use ($types, $db) {
                 return [
                     'id' => Type::id(),
-                    'item' => $types->Item(),
-                    'user' => $types->User(),
+                    'item' => [
+                        'type' => $types->Item(),
+                        'resolve' => function ($rootValue) use ($db) {
+                            return $db->get('items', ['id', 'name', 'image'], ['id' => $rootValue['item_id']]);
+                        }
+                    ],
+                    'user' => [
+                        'type' => $types->User(),
+                        'resolve' => function ($rootValue) use ($db) {
+                            return $db->get('users', ['id', 'email'], ['id' => $rootValue['user_id']]);
+                        }
+                    ],
                     'rating' => Type::float()
                 ];
             }
@@ -61,15 +71,25 @@ class RatingType extends ObjectType
 
 class UserType extends ObjectType
 {
-    public function __construct(TypeRegistry $types)
+    public function __construct(TypeRegistry $types, Medoo $db)
     {
         parent::__construct([
-            'fields' => function () use ($types) {
+            'fields' => function () use ($types, $db) {
                 return [
                     'id' => Type::id(),
                     'email' => Type::string(),
-                    'ratings' => Type::listOf($types->Rating()),
-                    'comments' => Type::listOf($types->Comment())
+                    'ratings' => [
+                        'type' => Type::listOf($types->Rating()),
+                        'resolve' => function ($rootValue) use ($db) {
+                            return $db->select('ratings', ['id', 'user_id', 'item_id', 'rating'], ['user_id' => $rootValue['id']]);
+                        }
+                    ],
+                    'comments' => [
+                        'type' => Type::listOf($types->Comment()),
+                        'resolve' => function ($rootValue) use ($db) {
+                            return $db->select('comments', ['id', 'user_id', 'item_id', 'text'], ['user_id' => $rootValue['id']]);
+                        }
+                    ]
                 ];
             }
         ]);
@@ -78,15 +98,30 @@ class UserType extends ObjectType
 
 class CommentType extends ObjectType
 {
-    public function __construct(TypeRegistry $types)
+    public function __construct(TypeRegistry $types, Medoo $db)
     {
         parent::__construct([
-            'fields' => function () use ($types) {
+            'fields' => function () use ($types, $db) {
                 return [
                     'id' => Type::id(),
-                    'item' => $types->Item(),
-                    'text' => Type::string(),
-                    'author' => $types->User()
+                    'item' => [
+                        'type' => $types->Item(),
+                        'resolve' => function ($rootValue) use ($db) {
+                            return $db->get('items', ['id', 'name', 'image'], ['id' => $rootValue['item_id']]);
+                        }
+                    ],
+                    'text' => [
+                        'type' => Type::string(),
+                        'resolve' => function ($rootValue) {
+                            return $rootValue['text'];
+                        }
+                    ],
+                    'author' => [
+                        'type' => $types->User(),
+                        'resolve' => function ($rootValue) use ($db) {
+                            return $db->get('users', ['id', 'email'], ['id' => $rootValue['user_id']]);
+                        }
+                    ]
                 ];
             }
         ]);
@@ -129,23 +164,28 @@ class TypeRegistry
     private $comment;
     private $response;
     private $loginResponse;
-    private $sortOrder;
+    private $db;
+
+    public function __construct(Medoo $db)
+    {
+        $this->db = $db;
+    }
 
     public function User()
     {
-        return $this->user ?: ($this->user = new UserType($this));
+        return $this->user ?: ($this->user = new UserType($this, $this->db));
     }
     public function Item()
     {
-        return $this->item ?: ($this->item = new ItemType($this));
+        return $this->item ?: ($this->item = new ItemType($this, $this->db));
     }
     public function Rating()
     {
-        return $this->rating ?: ($this->rating = new RatingType($this));
+        return $this->rating ?: ($this->rating = new RatingType($this, $this->db));
     }
     public function Comment()
     {
-        return $this->comment ?: ($this->comment = new CommentType($this));
+        return $this->comment ?: ($this->comment = new CommentType($this, $this->db));
     }
     public function Response()
     {
@@ -154,9 +194,5 @@ class TypeRegistry
     public function LoginResponse()
     {
         return $this->loginResponse ?: ($this->loginResponse = new LoginResponseType($this));
-    }
-    public function SortOrderEnum()
-    {
-        return $this->sortOrder ?: ($this->sortOrder = new SortOrderEnum());
     }
 }

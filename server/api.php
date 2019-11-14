@@ -21,8 +21,7 @@ if (startsWith($auth_header, 'JWT ')) {
     try {
         $decoded = $jwt::decode($token);
         if ($decoded) {
-            $decoded_array = (array) $decoded;
-            $context['user'] = $decoded_array['user'];
+            $context['user'] = (array) $decoded->user;
         }
     } catch (Exception $exception) {
         // pass

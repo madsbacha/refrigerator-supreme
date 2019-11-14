@@ -1,13 +1,8 @@
 type Query {
-  drinks(order: Order, first: Int, after: Int): [Item!]
+  drinks(first: Int, after: Int): [Item!]
   ratings(itemId: Int): [Rating!]
   comments(itemId: Int, userId: Int, first: Int, after: Int): [Comment!]
   me: User
-}
-
-enum Order {
-  ASC
-  DESC
 }
 
 type Item {

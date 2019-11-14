@@ -6,15 +6,70 @@ use GraphQL\Type\Schema;
 $db = require __DIR__.'/../util/database.php';
 $jwt = require __DIR__.'/../util/jwt.php';
 require_once __DIR__.'/Types.php';
-$typeRegistry = new TypeRegistry();
+$typeRegistry = new TypeRegistry($db);
 
 $queryType = new ObjectType([
     'name' => 'Query',
     'fields' => [
-        'drinks' => Type::listOf($typeRegistry->Item()),
-        'ratings' => Type::listOf($typeRegistry->Rating()),
-        'comments' => Type::listOf($typeRegistry->Comment()),
-        'me' => $typeRegistry->User()
+        'drinks' => [
+            'type' => Type::listOf($typeRegistry->Item()),
+            'args' => [
+                'first' => Type::int(),
+                'after' => Type::int()
+            ],
+            'resolve' => function ($rootValue, $args) use ($db) {
+                $where = [];
+                if (array_key_exists('first', $args) && array_key_exists('after', $args)) {
+                    $where['LIMIT'] = [$args['after'], $args['first']];
+                } else if (array_key_exists('first', $args)) {
+                    $where['LIMIT'] = $args['first'];
+                }
+                return $db->select('items', ['id', 'name', 'image'], $where);
+            }
+        ],
+        'ratings' => [
+            'type' => Type::listOf($typeRegistry->Rating()),
+            'args' => [
+                'itemId' => Type::id()
+            ],
+            'resolve' => function ($rootValue, $args) use ($db) {
+                $where = [];
+                if (array_key_exists('itemId', $args)) {
+                    $where['item_id'] = $args['itemId'];
+                }
+                return $db->select('ratings', ['id', 'item_id', 'user_id', 'rating'], $where);
+            }
+        ],
+        'comments' => [
+            'type' => Type::listOf($typeRegistry->Comment()),
+            'args' => [
+                'itemId' => Type::id(),
+                'userId' => Type::id(),
+                'first' => Type::int(),
+                'after' => Type::int()
+            ],
+            'resolve' => function ($rootValue, $args) use ($db) {
+                $where = [];
+                if (array_key_exists('itemId', $args)) {
+                    $where['item_id'] = $args['itemId'];
+                }
+                if (array_key_exists('userId', $args)) {
+                    $where['user_id'] = $args['userId'];
+                }
+                if (array_key_exists('first', $args) && array_key_exists('after', $args)) {
+                    $where['LIMIT'] = [$args['after'], $args['first']];
+                } else if (array_key_exists('first', $args)) {
+                    $where['LIMIT'] = $args['first'];
+                }
+                return $db->select('comments', ['id', 'item_id', 'user_id', 'text'], $where);
+            }
+        ],
+        'me' => [
+            'type' => $typeRegistry->User(),
+            'resolve' => function ($rootValue, $args, $context) {
+                return $context['user'];
+            }
+        ]
     ]
 ]);
 
@@ -31,7 +86,7 @@ $mutationType = new ObjectType([
                 $email = $args['email'];
                 $password = password_hash($args['password'], PASSWORD_DEFAULT);
                 if ($db->has('users', compact('email'))) {
-                    throw new TypeError('A user with that email already exists');
+                    return [ 'success' => false ];
                 }
 
                 $db->insert('users', compact('email', 'password'));
@@ -77,7 +132,7 @@ $mutationType = new ObjectType([
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (!$context['user']) {
-                    throw new Error('Unauthorized');
+                    return null;
                 }
                 $password = password_hash($args['password'], PASSWORD_DEFAULT);
                 $db->update('users', compact('password'), ['id'=>$context['user']['id']]);
@@ -91,24 +146,24 @@ $mutationType = new ObjectType([
                 'image' => Type::nonNull(Type::string())
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
-                if (!$context['user']) {
-                    throw new Error('Unauthorized');
+                if ($context['user'] == null) {
+                    return null;
                 }
                 $name = $args['name'];
                 $image = $args['image'];
                 // TODO: Make sure the user has permission to create new items
                 $db->insert('items', compact('name', 'image'));
-                return $db->get('items', ['name', 'image'], ['id' => $db->lastInsertId()]);
+                return $db->get('items', ['id', 'name', 'image'], ['id' => $db->id()]);
             }
         ],
         'DeleteItem' => [
             'type' => $typeRegistry->Response(),
             'args' => [
-                'itemId' => Type::nonNull(Type::string())
+                'itemId' => Type::nonNull(Type::id())
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (!$context['user']) {
-                    throw new Error('Unauthorized');
+                    return [ 'success' => false ];
                 }
                 $id = $args['itemId'];
                 $data = $db->delete('items', compact('id'));
@@ -118,13 +173,13 @@ $mutationType = new ObjectType([
         'UpdateItem' => [
             'type' => $typeRegistry->Item(),
             'args' => [
-                'itemId' => Type::nonNull(Type::string()),
+                'itemId' => Type::nonNull(Type::id()),
                 'name' => Type::string(),
                 'image' => Type::string()
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (!$context['user']) {
-                    throw new Error('Unauthorized');
+                    return null;
                 }
                 $id = $args['itemId'];
                 $data = [];
@@ -144,17 +199,17 @@ $mutationType = new ObjectType([
         'RateItem' => [
             'type' => $typeRegistry->Rating(),
             'args' => [
-                'itemId' => Type::nonNull(Type::string()),
+                'itemId' => Type::nonNull(Type::id()),
                 'rating' => Type::nonNull(Type::float())
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (!$context['user']) {
-                    throw new Error('Unauthorized');
+                    return null;
                 }
                 $item_id = $args['itemId'];
                 $rating = $args['rating'];
                 if (!$db->has('items', ['id' => $item_id])) {
-                    throw new Error('Invalid item id');
+                    return null;
                 }
                 if ($db->has('ratings',
                     [
@@ -188,38 +243,35 @@ $mutationType = new ObjectType([
         'CreateComment' => [
             'type' => $typeRegistry->Comment(),
             'args' => [
-                'itemId' => Type::nonNull(Type::int()),
-                'comment' => Type::nonNull(Type::string())
+                'itemId' => Type::nonNull(Type::id()),
+                'text' => Type::nonNull(Type::string())
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (!$context['user']) {
-                    throw new Error('Unauthorized');
+                    return null;
                 }
                 $item_id = $args['itemId'];
-                $text = $args['comment'];
+                $text = $args['text'];
                 $user_id = $context['user']['id'];
                 if (!$db->has('items', ['id' => $item_id])) {
-                    throw new Error('No item with that id exist');
+                    return null;
                 }
                 $db->insert('comments', compact('item_id', 'text', 'user_id'));
-                return $db->get('comments', ['id', 'item_id', 'text', 'user_id'], ['id' => $db->lastInsertId()]);
+                return $db->get('comments', ['id', 'item_id', 'text', 'user_id'], ['id' => $db->id()]);
             }
         ],
         'DeleteComment' => [
             'type' => $typeRegistry->Response(),
             'args' => [
-                'commentId' => Type::nonNull(Type::int())
+                'commentId' => Type::nonNull(Type::id())
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (!$context['user']) {
-                    throw new Error('Unauthorized');
+                    return [ 'success' => false ];
                 }
                 $id = $args['commentId'];
                 $user_id = $context['user']['id'];
                 $where = compact('user_id', 'id');
-                if (!$db->has('comments', $where)) {
-                    throw new Error('Cannot find or delete comment');
-                }
                 $data = $db->delete('comments', $where);
                 return [ 'success' => $data->rowCount() > 0 ];
             }
