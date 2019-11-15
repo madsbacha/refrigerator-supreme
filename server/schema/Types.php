@@ -35,6 +35,36 @@ class ItemType extends ObjectType
                                 ['id', 'user_id', 'item_id', 'text'],
                                 ['item_id' => $rootValue['id']]);
                         }
+                    ],
+                    'category' => [
+                        'type' => $types->Category(),
+                        'resolve' => function ($rootValue) use ($db) {
+                            if (is_null($rootValue['category_id'])) {
+                                return null;
+                            }
+                            return $db->get('categories', ['id', 'name'], ['id' => $rootValue['category_id']]);
+                        }
+                    ]
+                ];
+            }
+        ]);
+    }
+}
+
+class CategoryType extends ObjectType
+{
+    public function __construct(TypeRegistry $types, Medoo $db)
+    {
+        parent::__construct([
+            'fields' => function () use ($types, $db) {
+                return [
+                    'id' => Type::id(),
+                    'name' => Type::string(),
+                    'drinks' => [
+                        'type' => Type::listOf($types->Item()),
+                        'resolve' => function ($rootValue) use ($db) {
+                            return $db->select('items', ['id', 'name', 'image', 'category_id'], ['category_id' => $rootValue['id']]);
+                        }
                     ]
                 ];
             }
@@ -53,7 +83,7 @@ class RatingType extends ObjectType
                     'item' => [
                         'type' => $types->Item(),
                         'resolve' => function ($rootValue) use ($db) {
-                            return $db->get('items', ['id', 'name', 'image'], ['id' => $rootValue['item_id']]);
+                            return $db->get('items', ['id', 'name', 'image', 'category_id'], ['id' => $rootValue['item_id']]);
                         }
                     ],
                     'user' => [
@@ -107,7 +137,7 @@ class CommentType extends ObjectType
                     'item' => [
                         'type' => $types->Item(),
                         'resolve' => function ($rootValue) use ($db) {
-                            return $db->get('items', ['id', 'name', 'image'], ['id' => $rootValue['item_id']]);
+                            return $db->get('items', ['id', 'name', 'image', 'category_id'], ['id' => $rootValue['item_id']]);
                         }
                     ],
                     'text' => [
@@ -164,6 +194,7 @@ class TypeRegistry
     private $comment;
     private $response;
     private $loginResponse;
+    private $category;
     private $db;
 
     public function __construct(Medoo $db)
@@ -194,5 +225,10 @@ class TypeRegistry
     public function LoginResponse()
     {
         return $this->loginResponse ?: ($this->loginResponse = new LoginResponseType($this));
+    }
+
+    public function Category()
+    {
+        return $this->category ?: ($this->category = new CategoryType($this, $this->db));
     }
 }

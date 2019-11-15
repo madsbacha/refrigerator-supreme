@@ -109,7 +109,7 @@ $mutationType = new ObjectType([
             'resolve' => function ($root, $args) use ($db, $jwt) {
                 $email = $args['email'];
                 $user = $db->get('users', ['id', 'email', 'password'], compact('email'));
-                if (!$user) {
+                if (is_null($user)) {
                     return [ 'success' => false ];
                 }
                 $password_match = password_verify($args['password'], $user['password']);
@@ -126,68 +126,75 @@ $mutationType = new ObjectType([
             }
         ],
         'UpdateUser' => [
-            'type' => $typeRegistry->User(),
+            'type' => $typeRegistry->Response(),
             'args' => [
                 'password' => Type::nonNull(Type::string())
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
-                if (!$context['user']) {
-                    return null;
+                if (is_null($context['user'])) {
+                    return [ 'success' => false ];
                 }
                 $password = password_hash($args['password'], PASSWORD_DEFAULT);
                 $db->update('users', compact('password'), ['id'=>$context['user']['id']]);
-                return $context['user'];
+                return [ 'success' => true ];
             }
         ],
         'CreateItem' => [
             'type' => $typeRegistry->Item(),
             'args' => [
                 'name' => Type::nonNull(Type::string()),
-                'image' => Type::nonNull(Type::string())
+                'image' => Type::nonNull(Type::string()),
+                'categoryId' => Type::id()
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
-                if ($context['user'] == null) {
+                if (is_null($context['user'])) {
                     return null;
                 }
-                $name = $args['name'];
-                $image = $args['image'];
+                $data = [
+                    'name' => $args['name'],
+                    'image' => $args['image'],
+                    'category_id' => array_key_exists('category_id', $args) ? $args['category_id'] : null
+                ];
                 // TODO: Make sure the user has permission to create new items
-                $db->insert('items', compact('name', 'image'));
+                $db->insert('items', $data);
                 return $db->get('items', ['id', 'name', 'image'], ['id' => $db->id()]);
             }
         ],
         'DeleteItem' => [
             'type' => $typeRegistry->Response(),
             'args' => [
-                'itemId' => Type::nonNull(Type::id())
+                'id' => Type::nonNull(Type::id())
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
-                if (!$context['user']) {
+                if (is_null($context['user'])) {
                     return [ 'success' => false ];
                 }
-                $id = $args['itemId'];
-                $data = $db->delete('items', compact('id'));
+                $data = $db->delete('items', [ 'id' => $args['id'] ]);
                 return [ 'success' => $data->rowCount() > 0 ];
             }
         ],
         'UpdateItem' => [
-            'type' => $typeRegistry->Item(),
+            'type' => $typeRegistry->Response(),
             'args' => [
-                'itemId' => Type::nonNull(Type::id()),
+                'id' => Type::nonNull(Type::id()),
                 'name' => Type::string(),
-                'image' => Type::string()
+                'image' => Type::string(),
+                'categoryId' => Type::id()
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
-                if (!$context['user']) {
-                    return null;
+                if (is_null($context['user'])) {
+                    return [ 'success' => false ];
                 }
-                $id = $args['itemId'];
+                $id = $args['id'];
                 $data = [];
-                if ($args['image']) {
+                if (array_key_exists('image', $args)) {
                     $data['image'] = $args['image'];
                 }
-                if ($args['name']) {
+                if (array_key_exists('name', $args)) {
                     $data['name'] = $args['name'];
+                }
+                if (array_key_exists('categoryId', $args)) {
+                    $data['category_id'] = $args['categoryId'];
                 }
                 if (count($data) == 0) {
                     return [ 'success' => true ];
@@ -247,7 +254,7 @@ $mutationType = new ObjectType([
                 'text' => Type::nonNull(Type::string())
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
-                if (!$context['user']) {
+                if (is_null($context['user'])) {
                     return null;
                 }
                 $item_id = $args['itemId'];
@@ -263,16 +270,56 @@ $mutationType = new ObjectType([
         'DeleteComment' => [
             'type' => $typeRegistry->Response(),
             'args' => [
-                'commentId' => Type::nonNull(Type::id())
+                'id' => Type::nonNull(Type::id())
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
-                if (!$context['user']) {
+                if (is_null($context['user'])) {
                     return [ 'success' => false ];
                 }
-                $id = $args['commentId'];
+                $id = $args['id'];
                 $user_id = $context['user']['id'];
                 $where = compact('user_id', 'id');
                 $data = $db->delete('comments', $where);
+                return [ 'success' => $data->rowCount() > 0 ];
+            }
+        ],
+        'CreateCategory' => [
+            'type' => $typeRegistry->Category(),
+            'args' => [
+                'name' => Type::nonNull(Type::string())
+            ],
+            'resolve' => function ($root, $args, $context) use ($db) {
+                if (is_null($context['user'])) {
+                    return null;
+                }
+                $db->insert('categories', ['name' => $args['name']]);
+                return $db->get('categories', ['id', 'name'], ['id' => $db->id()]);
+            }
+        ],
+        'DeleteCategory' => [
+            'type' => $typeRegistry->Response(),
+            'args' => [
+                'id' => Type::nonNull(Type::id())
+            ],
+            'resolve' => function ($root, $args, $context) use ($db) {
+                if (is_null($context['user'])) {
+                    return [ 'success' => false ];
+                }
+                $data = $db->delete('categories', ['id' => $args['id']]);
+                return [ 'success' => $data->rowCount() > 0 ];
+            }
+        ],
+        'UpdateCategory' => [
+            'type' => $typeRegistry->Response(),
+            'args' => [
+                'id' => Type::nonNull(Type::id()),
+                'name' => Type::nonNull(Type::string())
+            ],
+            'resolve' => function ($root, $args, $context) use ($db) {
+                if (is_null($context['user'])) {
+                    return [ 'success' => false ];
+                }
+                $data = $db->update('categories', ['name' => $args['name']], ['id' => $args['id']]);
                 return [ 'success' => $data->rowCount() > 0 ];
             }
         ]
