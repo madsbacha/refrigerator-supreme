@@ -178,7 +178,6 @@ class LoginResponseType extends ObjectType
         parent::__construct([
             'fields' => function () use ($types) {
                 return [
-                    'success' => Type::boolean(),
                     'token' => Type::string(),
                     'user' => $types->User()
                 ];

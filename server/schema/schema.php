@@ -1,9 +1,13 @@
 <?php
 namespace Api\Schema;
 
+use Api\Exception\InvalidCredentials;
+use Api\Exception\NotFound;
+use Api\Exception\Unauthorized;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use Api\Exception\AlreadyExist;
 
 $db = require __DIR__.'../util/database.php';
 $typeRegistry = new TypeRegistry($db);
@@ -86,7 +90,7 @@ $mutationType = new ObjectType([
                 $email = $args['email'];
                 $password = password_hash($args['password'], PASSWORD_DEFAULT);
                 if ($db->has('users', compact('email'))) {
-                    return [ 'success' => false ];
+                    throw new AlreadyExist("A user with that email already exist");
                 }
 
                 $db->insert('users', compact('email', 'password'));
@@ -94,7 +98,6 @@ $mutationType = new ObjectType([
 
                 $token = \JWTHelper::encode($user);
                 return [
-                    'success' => true,
                     'user' => $user,
                     'token' => $token
                 ];
@@ -110,33 +113,32 @@ $mutationType = new ObjectType([
                 $email = $args['email'];
                 $user = $db->get('users', ['id', 'email', 'password'], compact('email'));
                 if (is_null($user)) {
-                    return [ 'success' => false ];
+                    throw new InvalidCredentials();
                 }
                 $password_match = password_verify($args['password'], $user['password']);
                 if (!$password_match) {
-                    return [ 'success' => false ];
+                    throw new InvalidCredentials();
                 }
                 unset($user['password']);
                 $token = \JWTHelper::encode($user);
                 return [
-                    'success' => true,
                     'user' => $user,
                     'token' => $token
                 ];
             }
         ],
         'UpdateUser' => [
-            'type' => $typeRegistry->Response(),
+            'type' => $typeRegistry->User(),
             'args' => [
                 'password' => Type::nonNull(Type::string())
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (is_null($context['user'])) {
-                    return [ 'success' => false ];
+                    throw new Unauthorized();
                 }
                 $password = password_hash($args['password'], PASSWORD_DEFAULT);
                 $db->update('users', compact('password'), ['id'=>$context['user']['id']]);
-                return [ 'success' => true ];
+                return $db->get('user', ['id', 'email'], ['id' => $context['user']['id']]);
             }
         ],
         'CreateItem' => [
@@ -148,7 +150,7 @@ $mutationType = new ObjectType([
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (is_null($context['user'])) {
-                    return null;
+                    throw new Unauthorized();
                 }
                 $data = [
                     'name' => $args['name'],
@@ -157,7 +159,7 @@ $mutationType = new ObjectType([
                 ];
                 // TODO: Make sure the user has permission to create new items
                 $db->insert('items', $data);
-                return $db->get('items', ['id', 'name', 'image'], ['id' => $db->id()]);
+                return $db->get('items', ['id', 'name', 'image', 'category_id'], ['id' => $db->id()]);
             }
         ],
         'DeleteItem' => [
@@ -167,14 +169,14 @@ $mutationType = new ObjectType([
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (is_null($context['user'])) {
-                    return [ 'success' => false ];
+                    throw new Unauthorized();
                 }
                 $data = $db->delete('items', [ 'id' => $args['id'] ]);
                 return [ 'success' => $data->rowCount() > 0 ];
             }
         ],
         'UpdateItem' => [
-            'type' => $typeRegistry->Response(),
+            'type' => $typeRegistry->Item(),
             'args' => [
                 'id' => Type::nonNull(Type::id()),
                 'name' => Type::string(),
@@ -183,7 +185,7 @@ $mutationType = new ObjectType([
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (is_null($context['user'])) {
-                    return [ 'success' => false ];
+                    throw new Unauthorized();
                 }
                 $id = $args['id'];
                 $data = [];
@@ -199,8 +201,8 @@ $mutationType = new ObjectType([
                 if (count($data) == 0) {
                     return [ 'success' => true ];
                 }
-                $data = $db->update('items', $data, compact('id'));
-                return [ 'success' => $data->rowCount() > 0 ];
+                $db->update('items', $data, compact('id'));
+                return $db->get('items', ['id', 'name', 'image', 'category_id'], ['id' => $id]);
             }
         ],
         'RateItem' => [
@@ -211,12 +213,12 @@ $mutationType = new ObjectType([
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (!$context['user']) {
-                    return null;
+                    throw new Unauthorized();
                 }
                 $item_id = $args['itemId'];
                 $rating = $args['rating'];
                 if (!$db->has('items', ['id' => $item_id])) {
-                    return null;
+                    throw new NotFound('No item with that id exists');
                 }
                 if ($db->has('ratings',
                     [
@@ -255,13 +257,13 @@ $mutationType = new ObjectType([
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (is_null($context['user'])) {
-                    return null;
+                    throw new Unauthorized();
                 }
                 $item_id = $args['itemId'];
                 $text = $args['text'];
                 $user_id = $context['user']['id'];
                 if (!$db->has('items', ['id' => $item_id])) {
-                    return null;
+                    throw new NotFound('No item with that id exists');
                 }
                 $db->insert('comments', compact('item_id', 'text', 'user_id'));
                 return $db->get('comments', ['id', 'item_id', 'text', 'user_id'], ['id' => $db->id()]);
@@ -274,7 +276,7 @@ $mutationType = new ObjectType([
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (is_null($context['user'])) {
-                    return [ 'success' => false ];
+                    throw new Unauthorized();
                 }
                 $id = $args['id'];
                 $user_id = $context['user']['id'];
@@ -290,7 +292,7 @@ $mutationType = new ObjectType([
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (is_null($context['user'])) {
-                    return null;
+                    throw new Unauthorized();
                 }
                 $db->insert('categories', ['name' => $args['name']]);
                 return $db->get('categories', ['id', 'name'], ['id' => $db->id()]);
@@ -303,24 +305,24 @@ $mutationType = new ObjectType([
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (is_null($context['user'])) {
-                    return [ 'success' => false ];
+                    throw new Unauthorized();
                 }
                 $data = $db->delete('categories', ['id' => $args['id']]);
                 return [ 'success' => $data->rowCount() > 0 ];
             }
         ],
         'UpdateCategory' => [
-            'type' => $typeRegistry->Response(),
+            'type' => $typeRegistry->Category(),
             'args' => [
                 'id' => Type::nonNull(Type::id()),
                 'name' => Type::nonNull(Type::string())
             ],
             'resolve' => function ($root, $args, $context) use ($db) {
                 if (is_null($context['user'])) {
-                    return [ 'success' => false ];
+                    throw new Unauthorized();
                 }
-                $data = $db->update('categories', ['name' => $args['name']], ['id' => $args['id']]);
-                return [ 'success' => $data->rowCount() > 0 ];
+                $db->update('categories', ['name' => $args['name']], ['id' => $args['id']]);
+                return $db->get('categories', ['id', 'name'], ['id'=>$args['id']]);
             }
         ]
     ]
