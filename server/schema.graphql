@@ -1,0 +1,75 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Category {
+    drinks: [Item]
+    id: ID
+    name: String
+}
+
+type Comment {
+    author: User
+    id: ID
+    item: Item
+    text: String
+}
+
+type Item {
+    category: Category
+    comments: [Comment]
+    id: ID
+    image: String
+    name: String
+    rating: Float
+    ratings: [Rating]
+}
+
+type LoginResponse {
+    success: Boolean
+    token: String
+    user: User
+}
+
+type Mutation {
+    CreateCategory(name: String!): Category
+    CreateComment(itemId: ID!, text: String!): Comment
+    CreateItem(categoryId: ID, image: String!, name: String!): Item
+    CreateUser(email: String!, password: String!): LoginResponse
+    DeleteCategory(id: ID!): Response
+    DeleteComment(id: ID!): Response
+    DeleteItem(id: ID!): Response
+    Login(email: String!, password: String!): LoginResponse
+    RateItem(itemId: ID!, rating: Float!): Rating
+    UpdateCategory(id: ID!, name: String!): Response
+    UpdateItem(categoryId: ID, id: ID!, image: String, name: String): Response
+    UpdateUser(password: String!): Response
+}
+
+type Query {
+    comments(after: Int, first: Int, itemId: ID, userId: ID): [Comment]
+    drinks(after: Int, first: Int): [Item]
+    me: User
+    ratings(itemId: ID): [Rating]
+}
+
+type Rating {
+    id: ID
+    item: Item
+    rating: Float
+    user: User
+}
+
+type Response {
+    success: Boolean
+}
+
+type User {
+    comments: [Comment]
+    email: String
+    id: ID
+    ratings: [Rating]
+}

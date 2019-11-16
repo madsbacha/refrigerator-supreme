@@ -4,13 +4,12 @@ namespace Api\Schema;
 use Api\Exception\InvalidCredentials;
 use Api\Exception\NotFound;
 use Api\Exception\Unauthorized;
+use Api\Exception\AlreadyExist;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
-use Api\Exception\AlreadyExist;
 
-$db = require __DIR__.'../util/database.php';
-$typeRegistry = new TypeRegistry($db);
+$typeRegistry = new TypeRegistry();
 
 $queryType = new ObjectType([
     'name' => 'Query',
@@ -21,14 +20,14 @@ $queryType = new ObjectType([
                 'first' => Type::int(),
                 'after' => Type::int()
             ],
-            'resolve' => function ($rootValue, $args) use ($db) {
+            'resolve' => function ($rootValue, $args, $context) {
                 $where = [];
                 if (array_key_exists('first', $args) && array_key_exists('after', $args)) {
                     $where['LIMIT'] = [$args['after'], $args['first']];
                 } else if (array_key_exists('first', $args)) {
                     $where['LIMIT'] = $args['first'];
                 }
-                return $db->select('items', ['id', 'name', 'image'], $where);
+                return $context->db->Items->Where($where);
             }
         ],
         'ratings' => [
@@ -36,12 +35,12 @@ $queryType = new ObjectType([
             'args' => [
                 'itemId' => Type::id()
             ],
-            'resolve' => function ($rootValue, $args) use ($db) {
+            'resolve' => function ($rootValue, $args, $context) {
                 $where = [];
                 if (array_key_exists('itemId', $args)) {
                     $where['item_id'] = $args['itemId'];
                 }
-                return $db->select('ratings', ['id', 'item_id', 'user_id', 'rating'], $where);
+                return $context->db->Ratings->Where($where);
             }
         ],
         'comments' => [
@@ -52,7 +51,7 @@ $queryType = new ObjectType([
                 'first' => Type::int(),
                 'after' => Type::int()
             ],
-            'resolve' => function ($rootValue, $args) use ($db) {
+            'resolve' => function ($rootValue, $args, $context) {
                 $where = [];
                 if (array_key_exists('itemId', $args)) {
                     $where['item_id'] = $args['itemId'];
@@ -65,13 +64,14 @@ $queryType = new ObjectType([
                 } else if (array_key_exists('first', $args)) {
                     $where['LIMIT'] = $args['first'];
                 }
-                return $db->select('comments', ['id', 'item_id', 'user_id', 'text'], $where);
+                return $context->db->Comments->Where($where);
             }
         ],
         'me' => [
             'type' => $typeRegistry->User(),
             'resolve' => function ($rootValue, $args, $context) {
-                return $context['user'];
+                if (is_null($context->User)) return null;
+                return $context->db->Users->FindById($context->User->id);
             }
         ]
     ]
@@ -86,15 +86,15 @@ $mutationType = new ObjectType([
                 'email' => Type::nonNull(Type::string()),
                 'password' => Type::nonNull(Type::string())
             ],
-            'resolve' => function ($root, $args) use ($db) {
+            'resolve' => function ($root, $args, $context) {
                 $email = $args['email'];
                 $password = password_hash($args['password'], PASSWORD_DEFAULT);
-                if ($db->has('users', compact('email'))) {
+                if ($context->db->Users->HasByEmail($email)) {
                     throw new AlreadyExist("A user with that email already exist");
                 }
 
-                $db->insert('users', compact('email', 'password'));
-                $user = $db->get('users', ['id', 'email'], compact('email'));
+                $id = $context->db->Users->Create(compact('email', 'password'));
+                $user = $context->db->Users->FindById($id);
 
                 $token = \JWTHelper::encode($user);
                 return [
@@ -109,9 +109,8 @@ $mutationType = new ObjectType([
                 'email' => Type::nonNull(Type::string()),
                 'password' => Type::nonNull(Type::string())
             ],
-            'resolve' => function ($root, $args) use ($db) {
-                $email = $args['email'];
-                $user = $db->get('users', ['id', 'email', 'password'], compact('email'));
+            'resolve' => function ($root, $args, $context) {
+                $user = $context->db->Users->GetByEmailWithPassword($args['email']);
                 if (is_null($user)) {
                     throw new InvalidCredentials();
                 }
@@ -132,13 +131,15 @@ $mutationType = new ObjectType([
             'args' => [
                 'password' => Type::nonNull(Type::string())
             ],
-            'resolve' => function ($root, $args, $context) use ($db) {
-                if (is_null($context['user'])) {
+            'resolve' => function ($root, $args, $context) {
+                if (!$context->IsLoggedIn) {
                     throw new Unauthorized();
                 }
                 $password = password_hash($args['password'], PASSWORD_DEFAULT);
-                $db->update('users', compact('password'), ['id'=>$context['user']['id']]);
-                return $db->get('user', ['id', 'email'], ['id' => $context['user']['id']]);
+                if (!$context->db->Users->Update($context->User->id, compact('password'))) {
+                    throw new \UnknownError('Something went wrong, try again later.');
+                }
+                return $context->db->Users->FindById($context->User->id);
             }
         ],
         'CreateItem' => [
@@ -148,8 +149,8 @@ $mutationType = new ObjectType([
                 'image' => Type::nonNull(Type::string()),
                 'categoryId' => Type::id()
             ],
-            'resolve' => function ($root, $args, $context) use ($db) {
-                if (is_null($context['user'])) {
+            'resolve' => function ($root, $args, $context) {
+                if (!$context->IsLoggedIn) {
                     throw new Unauthorized();
                 }
                 $data = [
@@ -158,8 +159,8 @@ $mutationType = new ObjectType([
                     'category_id' => array_key_exists('category_id', $args) ? $args['category_id'] : null
                 ];
                 // TODO: Make sure the user has permission to create new items
-                $db->insert('items', $data);
-                return $db->get('items', ['id', 'name', 'image', 'category_id'], ['id' => $db->id()]);
+                $id = $context->db->Items->Create($data);
+                return $context->db->Items->FindById($id);
             }
         ],
         'DeleteItem' => [
@@ -167,12 +168,11 @@ $mutationType = new ObjectType([
             'args' => [
                 'id' => Type::nonNull(Type::id())
             ],
-            'resolve' => function ($root, $args, $context) use ($db) {
-                if (is_null($context['user'])) {
+            'resolve' => function ($root, $args, $context) {
+                if (!$context->IsLoggedIn) {
                     throw new Unauthorized();
                 }
-                $data = $db->delete('items', [ 'id' => $args['id'] ]);
-                return [ 'success' => $data->rowCount() > 0 ];
+                return [ 'success' => $context->db->Items->Delete($args['id']) ];
             }
         ],
         'UpdateItem' => [
@@ -183,11 +183,10 @@ $mutationType = new ObjectType([
                 'image' => Type::string(),
                 'categoryId' => Type::id()
             ],
-            'resolve' => function ($root, $args, $context) use ($db) {
-                if (is_null($context['user'])) {
+            'resolve' => function ($root, $args, $context) {
+                if (!$context->IsLoggedIn) {
                     throw new Unauthorized();
                 }
-                $id = $args['id'];
                 $data = [];
                 if (array_key_exists('image', $args)) {
                     $data['image'] = $args['image'];
@@ -198,11 +197,12 @@ $mutationType = new ObjectType([
                 if (array_key_exists('categoryId', $args)) {
                     $data['category_id'] = $args['categoryId'];
                 }
-                if (count($data) == 0) {
-                    return [ 'success' => true ];
+                if (count($data) != 0) {
+                    if (!$context->db->Items->Update($args['id'], $data)) {
+                        throw new \UnknownError('Something went wrong, try again later.');
+                    }
                 }
-                $db->update('items', $data, compact('id'));
-                return $db->get('items', ['id', 'name', 'image', 'category_id'], ['id' => $id]);
+                return $context->db->Items->FindById($args['id']);
             }
         ],
         'RateItem' => [
@@ -211,42 +211,34 @@ $mutationType = new ObjectType([
                 'itemId' => Type::nonNull(Type::id()),
                 'rating' => Type::nonNull(Type::float())
             ],
-            'resolve' => function ($root, $args, $context) use ($db) {
-                if (!$context['user']) {
+            'resolve' => function ($root, $args, $context) {
+                if (!$context->IsLoggedIn) {
                     throw new Unauthorized();
                 }
                 $item_id = $args['itemId'];
-                $rating = $args['rating'];
-                if (!$db->has('items', ['id' => $item_id])) {
+                if (!$context->db->Items->HasById($item_id)) {
                     throw new NotFound('No item with that id exists');
                 }
-                if ($db->has('ratings',
-                    [
-                        'item_id' => $item_id,
-                        'user_id' => $context['user']['id']
-                    ]
-                )) {
-                    $db->update('ratings',
-                        compact('rating'),
-                        [
-                            'user_id' => $context['user']['id'],
-                            'item_id' => $item_id
-                        ]
-                    );
-                } else {
-                    $db->insert('ratings', [
-                        'user_id' => $context['user']['id'],
-                        'item_id' => $item_id,
-                        'rating' => $rating
-                    ]);
-                }
-                return $db->get('ratings',
-                    ['id', 'item_id', 'user_id', 'rating'],
-                    [
+                $rating = null;
+                if ($context->db->Ratings->Has([
+                    'item_id' => $item_id,
+                    'user_id' => $context['user']['id']
+                ])) {
+                    $where = [
                         'user_id' => $context['user']['id'],
                         'item_id' => $item_id
-                    ]
-                );
+                    ];
+                    $context->db->Ratings->Update(['rating' => $args['rating']], $where);
+                    $rating = $context->db->Ratings->Get($where);
+                } else {
+                    $id = $context->db->Ratings->Create([
+                        'user_id' => $context['user']['id'],
+                        'item_id' => $item_id,
+                        'rating' => $args['rating']
+                    ]);
+                    $rating = $context->db->Ratings->FindById($id);
+                }
+                return $rating;
             }
         ],
         'CreateComment' => [
@@ -255,18 +247,19 @@ $mutationType = new ObjectType([
                 'itemId' => Type::nonNull(Type::id()),
                 'text' => Type::nonNull(Type::string())
             ],
-            'resolve' => function ($root, $args, $context) use ($db) {
-                if (is_null($context['user'])) {
+            'resolve' => function ($root, $args, $context) {
+                if (!$context->IsLoggedIn) {
                     throw new Unauthorized();
                 }
-                $item_id = $args['itemId'];
-                $text = $args['text'];
-                $user_id = $context['user']['id'];
-                if (!$db->has('items', ['id' => $item_id])) {
+                if (!$context->db->Items->HasById($args['ItemId'])) {
                     throw new NotFound('No item with that id exists');
                 }
-                $db->insert('comments', compact('item_id', 'text', 'user_id'));
-                return $db->get('comments', ['id', 'item_id', 'text', 'user_id'], ['id' => $db->id()]);
+                $id = $context->db->Comments->Create([
+                    'item_id' => $args['ItemId'],
+                    'text' => $args['text'],
+                    'user_id' => $context->User->id
+                ]);
+                return $context->db->Comments->FindById($id);
             }
         ],
         'DeleteComment' => [
@@ -274,15 +267,15 @@ $mutationType = new ObjectType([
             'args' => [
                 'id' => Type::nonNull(Type::id())
             ],
-            'resolve' => function ($root, $args, $context) use ($db) {
-                if (is_null($context['user'])) {
+            'resolve' => function ($root, $args, $context) {
+                if (!$context->IsLoggedIn) {
                     throw new Unauthorized();
                 }
-                $id = $args['id'];
-                $user_id = $context['user']['id'];
-                $where = compact('user_id', 'id');
-                $data = $db->delete('comments', $where);
-                return [ 'success' => $data->rowCount() > 0 ];
+                $success = $context->db->Comments->Delete([
+                    'user_id' => $context->User->id,
+                    'id' => $args['id']
+                ]);
+                return compact('success');
             }
         ],
         'CreateCategory' => [
@@ -290,12 +283,12 @@ $mutationType = new ObjectType([
             'args' => [
                 'name' => Type::nonNull(Type::string())
             ],
-            'resolve' => function ($root, $args, $context) use ($db) {
-                if (is_null($context['user'])) {
+            'resolve' => function ($root, $args, $context) {
+                if (!$context->IsLoggedIn) {
                     throw new Unauthorized();
                 }
-                $db->insert('categories', ['name' => $args['name']]);
-                return $db->get('categories', ['id', 'name'], ['id' => $db->id()]);
+                $id = $context->db->Categories->Create(['name' => $args['name']]);
+                return $context->db->Categories->FindById($id);
             }
         ],
         'DeleteCategory' => [
@@ -303,12 +296,11 @@ $mutationType = new ObjectType([
             'args' => [
                 'id' => Type::nonNull(Type::id())
             ],
-            'resolve' => function ($root, $args, $context) use ($db) {
-                if (is_null($context['user'])) {
+            'resolve' => function ($root, $args, $context) {
+                if (!$context->IsLoggedIn) {
                     throw new Unauthorized();
                 }
-                $data = $db->delete('categories', ['id' => $args['id']]);
-                return [ 'success' => $data->rowCount() > 0 ];
+                return [ 'success' => $context->db->Categories->DeleteById($args['id']) ];
             }
         ],
         'UpdateCategory' => [
@@ -317,12 +309,12 @@ $mutationType = new ObjectType([
                 'id' => Type::nonNull(Type::id()),
                 'name' => Type::nonNull(Type::string())
             ],
-            'resolve' => function ($root, $args, $context) use ($db) {
-                if (is_null($context['user'])) {
+            'resolve' => function ($root, $args, $context) {
+                if (!$context->IsLoggedIn) {
                     throw new Unauthorized();
                 }
-                $db->update('categories', ['name' => $args['name']], ['id' => $args['id']]);
-                return $db->get('categories', ['id', 'name'], ['id'=>$args['id']]);
+                $context->db->Categories->UpdateById(['name' => $args['name']], $args['id']);
+                return $context->db->Categories->FindById($args['id']);
             }
         ]
     ]

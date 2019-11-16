@@ -1,21 +1,21 @@
 <?php
-
 namespace Api;
+
+require __DIR__.'/../vendor/autoload.php';
 
 use Siler\GraphQL;
 use Siler\Http\Request;
 use Siler\Http\Response;
-use Exception;
-
-require 'vendor/autoload.php';
+use Api\Database;
 
 // Enable CORS
 Response\header('Access-Control-Allow-Origin', '*');
 Response\header('Access-Control-Allow-Headers', 'content-type,x-apollo-tracing');
 
-$context = [
-    'user' => null
-];
+$context = new \stdClass();
+$context->User = null;
+$context->Db = new DatabaseRepository();
+$context->IsLoggedIn = false;
 
 $auth_header = Request\header('Authorization');
 if (startsWith($auth_header, 'JWT ')) {
@@ -24,9 +24,10 @@ if (startsWith($auth_header, 'JWT ')) {
     try {
         $decoded = $jwt::decode($token);
         if ($decoded) {
-            $context['user'] = (array) $decoded->user;
+            $context->User = $decoded->user;
+            $context->IsLoggedIn = true;
         }
-    } catch (Exception $exception) {
+    } catch (\Exception $exception) {
         // pass
     }
 }
@@ -34,7 +35,7 @@ if (startsWith($auth_header, 'JWT ')) {
 // Respond only for POST requests
 if (Request\method_is('post')) {
     // Retrive the Schema
-    $schema = include __DIR__ . '/schema/schema.php';
+    $schema = include __DIR__ . '/schema/Schema.php';
 
     // Give it to siler
     GraphQL\init($schema, null, $context);

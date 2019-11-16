@@ -5,7 +5,7 @@ use \Firebase\JWT\JWT;
 
 class JWTHelper {
     static function getConfig () {
-        $config = include __DIR__.'/../config.php';
+        $config = include __DIR__ . '/../config.php';
         return $config['jwt'];
     }
     static function getKey () {
