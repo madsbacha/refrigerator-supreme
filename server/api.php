@@ -1,8 +1,11 @@
 <?php
 
+namespace Api;
+
 use Siler\GraphQL;
 use Siler\Http\Request;
 use Siler\Http\Response;
+use Exception;
 
 require 'vendor/autoload.php';
 

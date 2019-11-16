@@ -1,11 +1,11 @@
 <?php
+namespace Api\Schema;
+
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
-$db = require __DIR__.'/../util/database.php';
-$jwt = require __DIR__.'/../util/jwt.php';
-require_once __DIR__.'/Types.php';
+$db = require __DIR__.'../util/database.php';
 $typeRegistry = new TypeRegistry($db);
 
 $queryType = new ObjectType([
@@ -82,7 +82,7 @@ $mutationType = new ObjectType([
                 'email' => Type::nonNull(Type::string()),
                 'password' => Type::nonNull(Type::string())
             ],
-            'resolve' => function ($root, $args) use ($db, $jwt) {
+            'resolve' => function ($root, $args) use ($db) {
                 $email = $args['email'];
                 $password = password_hash($args['password'], PASSWORD_DEFAULT);
                 if ($db->has('users', compact('email'))) {
@@ -92,7 +92,7 @@ $mutationType = new ObjectType([
                 $db->insert('users', compact('email', 'password'));
                 $user = $db->get('users', ['id', 'email'], compact('email'));
 
-                $token = $jwt::encode($user);
+                $token = \JWTHelper::encode($user);
                 return [
                     'success' => true,
                     'user' => $user,
@@ -106,7 +106,7 @@ $mutationType = new ObjectType([
                 'email' => Type::nonNull(Type::string()),
                 'password' => Type::nonNull(Type::string())
             ],
-            'resolve' => function ($root, $args) use ($db, $jwt) {
+            'resolve' => function ($root, $args) use ($db) {
                 $email = $args['email'];
                 $user = $db->get('users', ['id', 'email', 'password'], compact('email'));
                 if (is_null($user)) {
@@ -117,7 +117,7 @@ $mutationType = new ObjectType([
                     return [ 'success' => false ];
                 }
                 unset($user['password']);
-                $token = $jwt::encode($user);
+                $token = \JWTHelper::encode($user);
                 return [
                     'success' => true,
                     'user' => $user,
