@@ -3,10 +3,15 @@ namespace Api;
 
 require __DIR__.'/../vendor/autoload.php';
 
+use Api\Database\DatabaseRepository;
+use Api\GraphQL\MutationType;
+use Api\GraphQL\QueryType;
+use Api\GraphQL\TypeRegistry;
+use Api\Util\JWTHelper;
+use GraphQL\Type\Schema;
 use Siler\GraphQL;
 use Siler\Http\Request;
 use Siler\Http\Response;
-use Api\Database;
 
 // Enable CORS
 Response\header('Access-Control-Allow-Origin', '*');
@@ -20,9 +25,8 @@ $context->IsLoggedIn = false;
 $auth_header = Request\header('Authorization');
 if (startsWith($auth_header, 'JWT ')) {
     $token = substr($auth_header, strlen('JWT '));
-    $jwt = include __DIR__ . '/util/jwt.php';
     try {
-        $decoded = $jwt::decode($token);
+        $decoded = JWTHelper::decode($token);
         if ($decoded) {
             $context->User = $decoded->user;
             $context->IsLoggedIn = true;
@@ -34,8 +38,12 @@ if (startsWith($auth_header, 'JWT ')) {
 
 // Respond only for POST requests
 if (Request\method_is('post')) {
-    // Retrive the Schema
-    $schema = include __DIR__ . '/schema/Schema.php';
+    // Retrieve the Schema
+    $typeRegistry = new TypeRegistry();
+    $schema = new Schema([
+        'query' => new QueryType($typeRegistry),
+        'mutation' => new MutationType($typeRegistry)
+    ]);
 
     // Give it to siler
     GraphQL\init($schema, null, $context);

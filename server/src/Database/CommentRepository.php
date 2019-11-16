@@ -1,6 +1,6 @@
 <?php
 
-namespace Api\Database\Repository;
+namespace Api\Database;
 
 use Medoo\Medoo;
 

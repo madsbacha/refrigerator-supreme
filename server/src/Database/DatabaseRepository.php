@@ -20,9 +20,9 @@ class DatabaseRepository {
             $this->db = $db;
         }
         $this->Users = new UserRepository($this->db);
-        $this->Items = new \Api\Database\ItemRepository($this->db);
-        $this->Comments = new \Api\Database\CommentRepository($this->db);
-        $this->Categories = new \Api\Database\CategoryRepository($this->db);
-        $this->Ratings = new \Api\Database\RatingRepository($this->db);
+        $this->Items = new ItemRepository($this->db);
+        $this->Comments = new CommentRepository($this->db);
+        $this->Categories = new CategoryRepository($this->db);
+        $this->Ratings = new RatingRepository($this->db);
     }
 }

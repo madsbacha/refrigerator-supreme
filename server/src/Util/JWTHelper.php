@@ -1,11 +1,13 @@
 <?php
+namespace Api\Util;
+
 use \Firebase\JWT\JWT;
 
 // https://github.com/firebase/php-jwt
 
 class JWTHelper {
     static function getConfig () {
-        $config = include __DIR__ . '/../config.php';
+        $config = include __DIR__ . '/../../config.php';
         return $config['jwt'];
     }
     static function getKey () {
