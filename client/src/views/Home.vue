@@ -1,18 +1,28 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1>Drinks</h1>
+    <ul>
+      <li v-for="drink in drinks" v-bind:key="drink.id" >{{drink.name}}</li>
+    </ul>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
+import gql from 'graphql-tag'
 export default {
   name: 'home',
-  components: {
-    HelloWorld
+  data: () => ({
+    drinks: []
+  }),
+  apollo: {
+    drinks: gql`query {
+      drinks {
+        id,
+        rating,
+        name,
+        image,
+      }
+    }`
   }
 }
 </script>

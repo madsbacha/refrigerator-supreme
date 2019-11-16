@@ -47,8 +47,7 @@ export default {
 
       if (result['data']['Login']['success']) {
         this.saveToken(result['data']['Login']['token'])
-        console.log('Logged in')
-        console.log(result.data)
+        await this.$router.push({ name: 'home' })
       }
     },
     async create () {
@@ -67,8 +66,7 @@ export default {
 
       if (result['data']['CreateUser']['success']) {
         this.saveToken(result['data']['CreateUser']['token'])
-        console.log('Logged in')
-        console.log(result.data)
+        await this.$router.push({ name: 'home' })
       }
     },
     saveToken (token) {
