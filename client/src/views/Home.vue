@@ -1,9 +1,17 @@
 <template>
-  <div class="home">
-    <h1>Drinks</h1>
-    <ul>
-      <li v-for="drink in drinks" v-bind:key="drink.id" >{{drink.name}}</li>
-    </ul>
+  <div class="home bg-gray-200 h-screen">
+    <div class="container mx-auto">
+      <h1 class="text-3xl">Drinks</h1>
+      <div class="flex flex-wrap content-between">
+        <div v-for="drink in drinks" v-bind:key="drink.id" class="w-1/4">
+          <div class="shadow rounded m-3 p-4 bg-white">
+            <img :src="drink.image" class="object-contain" />
+            <p class="text-lg">{{drink.name}}</p>
+            <p>Rating: {{drink.rating}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

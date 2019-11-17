@@ -12,7 +12,6 @@
 </template>
 
 <script>
-import '@/assets/tailwind.css'
 import gql from 'graphql-tag'
 export default {
   name: 'Login',
