@@ -1,31 +1,16 @@
 <?php
-
 namespace Api\Database;
 
-use Medoo\Medoo;
-
-class CategoryRepository
+class CategoryRepository extends Repository
 {
-    private $db;
-    private $table;
-    private $select;
-
-    public function __construct(Medoo $db)
+    protected function getTable()
     {
-        $this->db = $db;
-        $this->table = 'categories';
-        $this->select = ['id', 'name'];
+        return 'categories';
     }
 
-    public function Get($where)
+    protected function getSelect()
     {
-        return $this->db->get($this->table, $this->select, $where);
-    }
-
-    public function Create($data)
-    {
-        $this->db->insert($this->table, $data);
-        return $this->id();
+        return ['id', 'name'];
     }
 
     public function FindById($id)
@@ -33,21 +18,9 @@ class CategoryRepository
         return $this->Get(compact('id'));
     }
 
-    public function Delete($where)
-    {
-        $data = $this->db->delete($this->table, $where);
-        return $data->rowCount() > 0;
-    }
-
     public function DeleteById($id)
     {
         return $this->Delete(compact('id'));
-    }
-
-    public function Update($data, $where)
-    {
-        $data = $this->db->update($this->table, $data, $where);
-        return $data->rowCount() > 0;
     }
 
     public function UpdateById($data, $id)

@@ -72,7 +72,7 @@ class MutationType extends ObjectType
                             throw new Unauthorized();
                         }
                         $password = password_hash($args['password'], PASSWORD_DEFAULT);
-                        if (!$context->Db->Users->Update($context->User->id, compact('password'))) {
+                        if (!$context->Db->Users->UpdateById($context->User->id, compact('password'))) {
                             throw new \UnknownError('Something went wrong, try again later.');
                         }
                         return $context->Db->Users->FindById($context->User->id);
@@ -108,7 +108,7 @@ class MutationType extends ObjectType
                         if (!$context->IsLoggedIn) {
                             throw new Unauthorized();
                         }
-                        return [ 'success' => $context->Db->Items->Delete($args['id']) ];
+                        return [ 'success' => $context->Db->Items->DeleteById($args['id']) ];
                     }
                 ],
                 'UpdateItem' => [
@@ -134,7 +134,7 @@ class MutationType extends ObjectType
                             $data['category_id'] = $args['categoryId'];
                         }
                         if (count($data) != 0) {
-                            if (!$context->Db->Items->Update($args['id'], $data)) {
+                            if (!$context->Db->Items->UpdateById($args['id'], $data)) {
                                 throw new \UnknownError('Something went wrong, try again later.');
                             }
                         }

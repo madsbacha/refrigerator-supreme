@@ -1,7 +1,6 @@
 <?php
 namespace Api\GraphQL;
 
-use Api\GraphQL\TypeRegistry;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
@@ -17,7 +16,7 @@ class CategoryType extends ObjectType
                     'drinks' => [
                         'type' => Type::listOf($types->Item()),
                         'resolve' => function ($rootValue, $args, $context) {
-                            return $context->Db->Items->Where(['category_id' => $rootValue['id']]);
+                            return $context->Db->Items->Select(['category_id' => $rootValue['id']]);
                         }
                     ]
                 ];

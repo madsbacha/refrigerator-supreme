@@ -1,25 +1,16 @@
 <?php
-
 namespace Api\Database;
 
-use Medoo\Medoo;
-
-class ItemRepository
+class ItemRepository extends Repository
 {
-    private $db;
-    private $table;
-    private $select;
-
-    public function __construct(Medoo $db)
+    protected function getTable()
     {
-        $this->db = $db;
-        $this->table = 'items';
-        $this->select = ['id', 'name', 'image', 'category_id'];
+        return 'items';
     }
 
-    public function Where($where = [])
+    protected function getSelect()
     {
-        return $this->db->select($this->table, $this->select, $where);
+        return ['id', 'name', 'image', 'category_id'];
     }
 
     public function RatingOf($id)
@@ -32,31 +23,14 @@ class ItemRepository
         return $this->Get(compact('id'));
     }
 
-    public function Get($where) {
-        return $this->db->get($this->table, $this->select, $where);
+    public function DeleteById($id)
+    {
+        return $this->Delete(compact('id'));
     }
 
-    public function Create($data)
+    public function UpdateById($id, $data)
     {
-        $this->db->insert($this->table, $data);
-        return $this->db->id();
-    }
-
-    public function Delete($id)
-    {
-        $data = $this->db->delete($this->table, compact('id'));
-        return $data->rowCount() > 0;
-    }
-
-    public function Update($id, $data)
-    {
-        $data = $this->db->update($this->table, $data, compact('id'));
-        return $data->rowCount() > 0;
-    }
-
-    public function Has($where)
-    {
-        return $this->db->has($this->table, $where);
+        return $this->Update($data, compact('id'));
     }
 
     public function HasById($id)

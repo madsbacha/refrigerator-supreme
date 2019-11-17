@@ -24,7 +24,7 @@ class QueryType extends ObjectType
                         } else if (array_key_exists('first', $args)) {
                             $where['LIMIT'] = $args['first'];
                         }
-                        return $context->Db->Items->Where($where);
+                        return $context->Db->Items->Select($where);
                     }
                 ],
                 'ratings' => [
@@ -37,7 +37,7 @@ class QueryType extends ObjectType
                         if (array_key_exists('itemId', $args)) {
                             $where['item_id'] = $args['itemId'];
                         }
-                        return $context->Db->Ratings->Where($where);
+                        return $context->Db->Ratings->Select($where);
                     }
                 ],
                 'comments' => [
