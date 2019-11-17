@@ -11,4 +11,4 @@ php -S localhost:8080 server/api.php
 - [x] Return errors when errors happen instead of null
 - [ ] Implement privileges
 - [ ] Restrict "CreateItem" to admins
-- [ ] Encapsulate database logic
+- [x] Encapsulate database logic
