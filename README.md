@@ -2,7 +2,7 @@
 
 Run server
 ```
-php -S localhost:8080 server/api.php
+php -S 127.0.0.1:4000 server/src/Index.php
 ```
 
 ## TODO
