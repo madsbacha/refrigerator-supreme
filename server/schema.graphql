@@ -29,7 +29,6 @@ type Item {
 }
 
 type LoginResponse {
-    success: Boolean
     token: String
     user: User
 }
@@ -44,9 +43,9 @@ type Mutation {
     DeleteItem(id: ID!): Response
     Login(email: String!, password: String!): LoginResponse
     RateItem(itemId: ID!, rating: Float!): Rating
-    UpdateCategory(id: ID!, name: String!): Response
-    UpdateItem(categoryId: ID, id: ID!, image: String, name: String): Response
-    UpdateUser(password: String!): Response
+    UpdateCategory(id: ID!, name: String!): Category
+    UpdateItem(categoryId: ID, id: ID!, image: String, name: String): Item
+    UpdateUser(password: String!): User
 }
 
 type Query {

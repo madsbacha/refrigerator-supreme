@@ -3,9 +3,12 @@ namespace Api\GraphQL;
 
 use Api\Exception\AlreadyExist;
 use Api\Exception\InvalidCredentials;
+use Api\Exception\InvalidEmail;
 use Api\Exception\NotFound;
 use Api\Exception\Unauthorized;
 use Api\Util\JWTHelper;
+use Egulias\EmailValidator\EmailValidator;
+use Egulias\EmailValidator\Validation\RFCValidation;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
@@ -24,6 +27,10 @@ class MutationType extends ObjectType
                     ],
                     'resolve' => function ($root, $args, $context) {
                         $email = $args['email'];
+                        $validator = new EmailValidator();
+                        if (!$validator->isValid($email, new RFCValidation())) {
+                            throw new InvalidEmail('Invalid email');
+                        }
                         $password = password_hash($args['password'], PASSWORD_DEFAULT);
                         if ($context->Db->Users->HasByEmail($email)) {
                             throw new AlreadyExist("A user with that email already exist");
