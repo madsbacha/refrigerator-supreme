@@ -4,6 +4,7 @@ namespace Api\GraphQL;
 use Api\Exception\AlreadyExist;
 use Api\Exception\InvalidCredentials;
 use Api\Exception\InvalidEmail;
+use Api\Exception\InvalidInput;
 use Api\Exception\NotFound;
 use Api\Exception\Unauthorized;
 use Api\Util\JWTHelper;
@@ -161,6 +162,9 @@ class MutationType extends ObjectType
                         $item_id = $args['itemId'];
                         if (!$context->Db->Items->HasById($item_id)) {
                             throw new NotFound('No item with that id exists');
+                        }
+                        if ($args['rating'] < 1 || 10 < $args['rating']) {
+                            throw new InvalidInput('Rating must be between 1 and 10 (inclusive).');
                         }
                         $rating = null;
                         if ($context->Db->Ratings->Has([
