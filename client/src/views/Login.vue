@@ -62,7 +62,7 @@ export default {
     },
     saveToken (token) {
       this.$token = token
-      window.sessionStorage.setItem('token', token)
+      window.localStorage.setItem('apollo-token', token)
     },
     clearErrors () {
       this.errorMessage = ''
