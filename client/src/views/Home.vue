@@ -10,7 +10,7 @@
             <p class="px-4 pb-4 border-b border-grey-200">Rating: {{drink.rating}}</p>
             <div class="flex w-full justify-between">
               <p class="py-2 px-3">Your rating</p>
-              <input @input="handleRating" v-bind:drink-id="drink.id" type="number" placeholder="#" min="1" max="10" class="border-l border-grey-100 py-2 px-3 rounded-br w-16" />
+              <input @input="handleRating" v-bind:drink-id="drink.id" v-once :value="ratingOn(drink.id)" type="number" placeholder="#" min="1" max="10" class="border-l border-grey-100 py-2 px-3 rounded-br w-16" />
             </div>
           </div>
         </div>
@@ -48,6 +48,14 @@ export default {
           Authorization: 'JWT ' + this.$token
         }
       }).then(console.log).catch(console.log)
+    },
+    ratingOn (id) {
+      for (let i = 0; i < this.drinks.length; i++) {
+        if (this.drinks[i].id === id) {
+          return this.drinks[i].myRating ? this.drinks[i].myRating.rating : ''
+        }
+      }
+      return ''
     }
   },
   apollo: {
@@ -57,6 +65,9 @@ export default {
         rating,
         name,
         image,
+        myRating {
+            rating
+        }
       }
     }`
   }

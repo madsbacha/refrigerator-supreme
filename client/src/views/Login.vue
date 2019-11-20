@@ -21,6 +21,12 @@ export default {
     type: 'login',
     errorMessage: ''
   }),
+  beforeCreate () {
+    let token = window.localStorage.getItem('apollo-token')
+    if (token && token.split('.').length === 3) {
+      this.$router.push({ name: 'home' })
+    }
+  },
   methods: {
     handleSubmit () {
       if (this.type === 'login') {
