@@ -18,7 +18,7 @@ class ItemType extends ObjectType
                     'rating' => [
                         'type' => Type::float(),
                         'resolve' => function ($rootValue, $args, $context) {
-                            return $context->Db->Items->RatingOf($rootValue['id']);
+                            return $context->Db->Ratings->RatingOf($rootValue['id']);
                         }
                     ],
                     'ratings' => [

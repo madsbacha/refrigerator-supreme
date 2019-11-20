@@ -34,4 +34,9 @@ class RatingRepository extends Repository
     {
         return $this->Get(compact('item_id', 'user_id'));
     }
+
+    public function RatingOf($item_id)
+    {
+        return $this->db->avg($this->table, 'rating', compact('item_id'));
+    }
 }

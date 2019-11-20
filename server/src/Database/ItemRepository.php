@@ -13,11 +13,6 @@ class ItemRepository extends Repository
         return ['id', 'name', 'image', 'category_id'];
     }
 
-    public function RatingOf($id)
-    {
-        return $this->db->avg($this->table, 'rating', compact('id'));
-    }
-
     public function FindById($id)
     {
         return $this->Get(compact('id'));
