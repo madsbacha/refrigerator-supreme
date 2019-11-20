@@ -27,6 +27,13 @@ class ItemType extends ObjectType
                             return $context->Db->Ratings->On($rootValue['id']);
                         }
                     ],
+                    'myRating' => [
+                        'type' => $types->Rating(),
+                        'resolve' => function ($rootValue, $args, $context) {
+                            if (!$context->IsLoggedIn) return null;
+                            return $context->Db->Ratings->OnBy($rootValue['id'], $context->User->id);
+                        }
+                    ],
                     'comments' => [
                         'type' => Type::listOf($types->Comment()),
                         'resolve' => function ($rootValue, $args, $context) {

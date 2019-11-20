@@ -29,4 +29,9 @@ class RatingRepository extends Repository
     {
         return $this->Get(compact('id'));
     }
+
+    public function OnBy($item_id, $user_id)
+    {
+        return $this->Get(compact('item_id', 'user_id'));
+    }
 }

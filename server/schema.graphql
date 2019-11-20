@@ -23,6 +23,7 @@ type Item {
     comments: [Comment]
     id: ID
     image: String
+    myRating: Rating
     name: String
     rating: Float
     ratings: [Rating]
