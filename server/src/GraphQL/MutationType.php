@@ -169,17 +169,17 @@ class MutationType extends ObjectType
                         $rating = null;
                         if ($context->Db->Ratings->Has([
                             'item_id' => $item_id,
-                            'user_id' => $context['user']['id']
+                            'user_id' => $context->User->id
                         ])) {
                             $where = [
-                                'user_id' => $context['user']['id'],
+                                'user_id' => $context->User->id,
                                 'item_id' => $item_id
                             ];
                             $context->Db->Ratings->Update(['rating' => $args['rating']], $where);
                             $rating = $context->Db->Ratings->Get($where);
                         } else {
                             $id = $context->Db->Ratings->Create([
-                                'user_id' => $context['user']['id'],
+                                'user_id' => $context->User->id,
                                 'item_id' => $item_id,
                                 'rating' => $args['rating']
                             ]);
