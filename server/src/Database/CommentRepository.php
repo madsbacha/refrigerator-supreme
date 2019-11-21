@@ -10,7 +10,7 @@ class CommentRepository extends Repository
 
     protected function getSelect()
     {
-        return ['id', 'item_id', 'user_id', 'text'];
+        return ['id', 'item_id', 'user_id', 'text', 'parent_id'];
     }
 
     public function ByUserId($id)
@@ -21,5 +21,15 @@ class CommentRepository extends Repository
     public function FindById($id)
     {
         return $this->Get(compact('id'));
+    }
+
+    public function RepliesTo($parent_id)
+    {
+        return $this->Select(compact('parent_id'));
+    }
+
+    public function CountOnItem($item_id)
+    {
+        return $this->Count(compact('item_id'));
     }
 }

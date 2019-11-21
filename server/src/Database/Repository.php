@@ -49,4 +49,9 @@ abstract class Repository {
         $data = $this->db->delete($this->table, $where);
         return $data->rowCount() > 0;
     }
+
+    public function Count($where)
+    {
+        return $this->db->count($this->table, $where);
+    }
 }
