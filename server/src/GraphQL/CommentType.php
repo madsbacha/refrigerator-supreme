@@ -25,6 +25,21 @@ class CommentType extends ObjectType
                         'resolve' => function ($rootValue, $args, $context) {
                             return $context->Db->Users->FindById($rootValue['user_id']);
                         }
+                    ],
+                    'replyTo' => [
+                        'type' => $types->Comment(),
+                        'resolve' => function ($rootValue, $args, $context) {
+                            if (is_null($rootValue['parent_id'])) {
+                                return null;
+                            }
+                            return $context->Db->Comments->FindById($rootValue['parent_id']);
+                        }
+                    ],
+                    'replies' => [
+                        'type' => Type::listOf($types->Comment()),
+                        'resolve' => function ($rootValue, $args, $context) {
+                            return $context->Db->Comments->RepliesTo($rootValue['id']);
+                        }
                     ]
                 ];
             }

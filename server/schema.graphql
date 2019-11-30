@@ -15,14 +15,18 @@ type Comment {
     author: User
     id: ID
     item: Item
+    replies: [Comment]
+    replyTo: Comment
     text: String
 }
 
 type Item {
     category: Category
     comments: [Comment]
+    commentsCount: Int
     id: ID
     image: String
+    myRating: Rating
     name: String
     rating: Float
     ratings: [Rating]

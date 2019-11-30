@@ -15,7 +15,7 @@ use Siler\Http\Response;
 
 // Enable CORS
 Response\header('Access-Control-Allow-Origin', '*');
-Response\header('Access-Control-Allow-Headers', 'content-type,x-apollo-tracing');
+Response\header('Access-Control-Allow-Headers', 'content-type,x-apollo-tracing,Authorization');
 
 // Respond only for POST requests
 if (Request\method_is('post')) {

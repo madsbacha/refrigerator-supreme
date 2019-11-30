@@ -14,6 +14,14 @@ const routes = [
     path: '/login',
     name: 'login',
     component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue')
+  },
+  {
+    path: '/logout',
+    name: 'logout',
+    beforeEnter (to, from, next) {
+      window.localStorage.removeItem('apollo-token')
+      next({ name: 'login' })
+    }
   }
 ]
 
