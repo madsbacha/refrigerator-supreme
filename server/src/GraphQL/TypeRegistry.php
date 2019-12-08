@@ -23,10 +23,6 @@ class TypeRegistry
     {
         return $this->rating ?: ($this->rating = new RatingType($this));
     }
-    public function Comment()
-    {
-        return $this->comment ?: ($this->comment = new CommentType($this));
-    }
     public function Response()
     {
         return $this->response ?: ($this->response = new ResponseType());

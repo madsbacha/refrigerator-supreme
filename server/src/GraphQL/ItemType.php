@@ -34,18 +34,6 @@ class ItemType extends ObjectType
                             return $context->Db->Ratings->OnBy($rootValue['id'], $context->User->id);
                         }
                     ],
-                    'comments' => [
-                        'type' => Type::listOf($types->Comment()),
-                        'resolve' => function ($rootValue, $args, $context) {
-                            return $context->Db->Comments->Where(['item_id' => $rootValue['id']]);
-                        }
-                    ],
-                    'commentsCount' => [
-                        'type' => Type::int(),
-                        'resolve' => function ($rootValue, $args, $context) {
-                            return $context->Db->Comments->CountOnItem($rootValue['id']);
-                        }
-                    ],
                     'category' => [
                         'type' => $types->Category(),
                         'resolve' => function ($rootValue, $args, $context) {

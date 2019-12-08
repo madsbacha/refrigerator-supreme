@@ -19,12 +19,6 @@ class UserType extends ObjectType
                         'resolve' => function ($rootValue, $args, $context) {
                             return $context->Db->Ratings->ByUserId($rootValue['id']);
                         }
-                    ],
-                    'comments' => [
-                        'type' => Type::listOf($types->Comment()),
-                        'resolve' => function ($rootValue, $args, $context) {
-                            return $context->Db->Comments->ByUserId($rootValue['id']);
-                        }
                     ]
                 ];
             }

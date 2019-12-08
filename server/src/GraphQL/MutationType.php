@@ -188,43 +188,6 @@ class MutationType extends ObjectType
                         return $rating;
                     }
                 ],
-                'CreateComment' => [
-                    'type' => $typeRegistry->Comment(),
-                    'args' => [
-                        'itemId' => Type::nonNull(Type::id()),
-                        'text' => Type::nonNull(Type::string())
-                    ],
-                    'resolve' => function ($root, $args, $context) {
-                        if (!$context->IsLoggedIn) {
-                            throw new Unauthorized();
-                        }
-                        if (!$context->Db->Items->HasById($args['ItemId'])) {
-                            throw new NotFound('No item with that id exists');
-                        }
-                        $id = $context->Db->Comments->Create([
-                            'item_id' => $args['ItemId'],
-                            'text' => $args['text'],
-                            'user_id' => $context->User->id
-                        ]);
-                        return $context->Db->Comments->FindById($id);
-                    }
-                ],
-                'DeleteComment' => [
-                    'type' => $typeRegistry->Response(),
-                    'args' => [
-                        'id' => Type::nonNull(Type::id())
-                    ],
-                    'resolve' => function ($root, $args, $context) {
-                        if (!$context->IsLoggedIn) {
-                            throw new Unauthorized();
-                        }
-                        $success = $context->Db->Comments->Delete([
-                            'user_id' => $context->User->id,
-                            'id' => $args['id']
-                        ]);
-                        return compact('success');
-                    }
-                ],
                 'CreateCategory' => [
                     'type' => $typeRegistry->Category(),
                     'args' => [

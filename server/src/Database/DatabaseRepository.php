@@ -21,7 +21,6 @@ class DatabaseRepository {
         }
         $this->Users = new UserRepository($this->db);
         $this->Items = new ItemRepository($this->db);
-        $this->Comments = new CommentRepository($this->db);
         $this->Categories = new CategoryRepository($this->db);
         $this->Ratings = new RatingRepository($this->db);
     }
