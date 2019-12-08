@@ -40,30 +40,6 @@ class QueryType extends ObjectType
                         return $context->Db->Ratings->Select($where);
                     }
                 ],
-                'comments' => [
-                    'type' => Type::listOf($typeRegistry->Comment()),
-                    'args' => [
-                        'itemId' => Type::id(),
-                        'userId' => Type::id(),
-                        'first' => Type::int(),
-                        'after' => Type::int()
-                    ],
-                    'resolve' => function ($rootValue, $args, $context) {
-                        $where = [];
-                        if (array_key_exists('itemId', $args)) {
-                            $where['item_id'] = $args['itemId'];
-                        }
-                        if (array_key_exists('userId', $args)) {
-                            $where['user_id'] = $args['userId'];
-                        }
-                        if (array_key_exists('first', $args) && array_key_exists('after', $args)) {
-                            $where['LIMIT'] = [$args['after'], $args['first']];
-                        } else if (array_key_exists('first', $args)) {
-                            $where['LIMIT'] = $args['first'];
-                        }
-                        return $context->Db->Comments->Where($where);
-                    }
-                ],
                 'me' => [
                     'type' => $typeRegistry->User(),
                     'resolve' => function ($rootValue, $args, $context) {
