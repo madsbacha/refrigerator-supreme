@@ -36,9 +36,9 @@ class MutationType extends ObjectType
                         if ($context->Db->Users->HasByEmail($email)) {
                             throw new AlreadyExist("A user with that email already exist");
                         }
-
                         $id = $context->Db->Users->Create(compact('email', 'password'));
                         $user = $context->Db->Users->FindById($id);
+
 
                         $token = JWTHelper::encode($user);
                         return [

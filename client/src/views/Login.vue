@@ -57,7 +57,8 @@ export default {
       this.$apollo.mutate({
         mutation: gql`mutation($email: String!, $password: String!) {
         CreateUser(email: $email, password: $password) {
-          token
+          token,
+          user { id, email }
         }
       }`,
         variables: {
