@@ -18,31 +18,52 @@
                     <input type="number" id="energy" class="input" placeholder="487 kJ">
                 </div>
                 <div class="flex flex-col flex-grow ml-8">
-                    <label for="content" class="label">Milliliter</label>
-                    <input type="number" id="content" class="input" placeholder="250ml">
+                    <label for="mlSize" class="label">Milliliter</label>
+                    <input type="number" id="mlSize" class="input" placeholder="250ml">
                 </div>
             </div>
             <div class="flex mb-10">
                 <div class="flex flex-col">
-                    <label for="image-file">Choose an image</label>
-                    <input type="file" id="image-file">
+                    <label for="image-file" class="label">Choose an image</label>
+                    <input type="file" id="image-file" accept="image/*">
                 </div>
             </div>
             <div class="flex">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-1/2">Add Drink</button>
+                <button type="submit" v-on:click="addItem" class="btn-submit w-1/2 hover:bg-blue-700">Add Item</button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import gql from 'graphql-tag'
+
 export default {
     name: 'New',
     data: () => ({
         name: '',
         price: '',
-        energy: ''
-    })
+        energy: '',
+        mlSize: ''
+    }),
+    methods: {
+        addItem () {
+            this.$apollo.mutate({
+                mutation: gql`mutation($name: String!) {
+                CreateItem(name: $name, image: "test.png") {
+                  id,
+                  name,
+                  image,
+                  rating
+                }
+              }`,
+                variables: {
+                    name: this.name,
+                    image: 'test'
+                }
+            }).then(data => console.log(data))
+        }
+    }
 }
 </script>
 
