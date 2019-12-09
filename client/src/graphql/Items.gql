@@ -1,5 +1,6 @@
 query allItems {
     items {
+        id
         name
     }
 }

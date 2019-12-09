@@ -51,8 +51,9 @@
 
 <script>
 // import gql from 'graphql-tag'
-import CREATE_ITEM_MUTATION from '../../graphql/CreateItem.gql'
 import RETRIEVE_ITEMS from '../../graphql/Items.gql'
+import CREATE_ITEM_MUTATION from '../../graphql/CreateItem.gql'
+import DELETE_ITEM_MUTATION from '../../graphql/DeleteItem.gql'
 
 export default {
     name: 'New',
@@ -77,7 +78,13 @@ export default {
         alertUserOfAddedItem (name) {
             alert(`'${name}' was added successfully!`)
         },
-        deleteItem (id) {
+        deleteItem (delId) {
+            this.$apollo.mutate({
+                mutation: DELETE_ITEM_MUTATION,
+                variables: {
+                    id: delId
+                }
+            }).then(response => console.log(response))
         }
     },
     apollo: {
