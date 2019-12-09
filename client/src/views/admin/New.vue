@@ -36,7 +36,8 @@
 </template>
 
 <script>
-import gql from 'graphql-tag'
+// import gql from 'graphql-tag'
+import CREATE_ITEM_MUTATION from '../../graphql/CreateItem.gql'
 
 export default {
     name: 'New',
@@ -49,17 +50,10 @@ export default {
     methods: {
         addItem () {
             this.$apollo.mutate({
-                mutation: gql`mutation($name: String!) {
-                CreateItem(name: $name, image: "test.png") {
-                  id,
-                  name,
-                  image,
-                  rating
-                }
-              }`,
+                mutation: CREATE_ITEM_MUTATION,
                 variables: {
                     name: this.name,
-                    image: 'test'
+                    image: 'test.png'
                 }
             }).then(data => console.log(data))
         }
