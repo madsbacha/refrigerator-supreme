@@ -41,7 +41,8 @@
         <div class="p-5 w-1/2">
             <div>
                 <div class="list-item" v-for="item in items" :key="item.id">
-                    {{ item.name }}
+                    <label>{{ item.name }}</label>
+                    <button class="float-right" v-on:click="deleteItem">Delete</button>
                 </div>
             </div>
         </div>
@@ -83,6 +84,8 @@ export default {
         },
         alertUserOfAddedItem (name) {
             alert(`'${name}' was added successfully!`)
+        },
+        deleteItem () {
         }
     }
 }
