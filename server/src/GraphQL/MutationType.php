@@ -91,6 +91,9 @@ class MutationType extends ObjectType
                     'args' => [
                         'name' => Type::nonNull(Type::string()),
                         'image' => Type::nonNull(Type::string()),
+                        'price' => Type::nonNull(Type::float()),
+                        'energy' => Type::nonNull(Type::float()),
+                        'size' => Type::nonNull(Type::float()),
                         'categoryId' => Type::id()
                     ],
                     'resolve' => function ($root, $args, $context) {
@@ -100,6 +103,9 @@ class MutationType extends ObjectType
                         $data = [
                             'name' => $args['name'],
                             'image' => $args['image'],
+                            'price' => $args['price'],
+                            'energy' => $args['energy'],
+                            'size' => $args['size'],
                             'category_id' => array_key_exists('category_id', $args) ? $args['category_id'] : null
                         ];
                         // TODO: Make sure the user has permission to create new items
@@ -125,6 +131,9 @@ class MutationType extends ObjectType
                         'id' => Type::nonNull(Type::id()),
                         'name' => Type::string(),
                         'image' => Type::string(),
+                        'price' => Type::float(),
+                        'energy' => Type::float(),
+                        'size' => Type::float(),
                         'categoryId' => Type::id()
                     ],
                     'resolve' => function ($root, $args, $context) {
@@ -137,6 +146,15 @@ class MutationType extends ObjectType
                         }
                         if (array_key_exists('name', $args)) {
                             $data['name'] = $args['name'];
+                        }
+                        if (array_key_exists('price', $args)) {
+                            $data['price'] = $args['price'];
+                        }
+                        if (array_key_exists('energy', $args)) {
+                            $data['energy'] = $args['energy'];
+                        }
+                        if (array_key_exists('size', $args)) {
+                            $data['size'] = $args['size'];
                         }
                         if (array_key_exists('categoryId', $args)) {
                             $data['category_id'] = $args['categoryId'];
