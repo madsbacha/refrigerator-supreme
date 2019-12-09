@@ -107,7 +107,7 @@ class MutationType extends ObjectType
                         return $context->Db->Items->FindById($id);
                     }
                 ],
-                'DeleteItem' => [
+                'DeleteItem.gql' => [
                     'type' => $typeRegistry->Response(),
                     'args' => [
                         'id' => Type::nonNull(Type::id())

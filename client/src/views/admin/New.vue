@@ -40,9 +40,9 @@
         </div>
         <div class="p-5 w-1/2">
             <div>
-                <div class="list-item" v-for="item in drinks" :key="item.id">
+                <div class="list-item" v-for="item in items" :key="item.id">
                     <label>{{ item.name }}</label>
-                    <button class="float-right" v-on:click="deleteItem">Delete</button>
+                    <button class="float-right" v-on:click="deleteItem(item.id)">Delete</button>
                 </div>
             </div>
         </div>
@@ -62,7 +62,7 @@ export default {
         energy: '',
         mlSize: '',
         imageURL: '',
-        drinks: []
+        items: []
     }),
     methods: {
         addItem () {
@@ -77,11 +77,11 @@ export default {
         alertUserOfAddedItem (name) {
             alert(`'${name}' was added successfully!`)
         },
-        deleteItem () {
+        deleteItem (id) {
         }
     },
     apollo: {
-        drinks: RETRIEVE_ITEMS
+        items: RETRIEVE_ITEMS
     }
 }
 </script>

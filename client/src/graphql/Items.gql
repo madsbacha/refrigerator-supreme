@@ -1,5 +1,5 @@
-query items {
-    drinks {
+query allItems {
+    items {
         name
     }
 }
