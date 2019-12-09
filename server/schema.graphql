@@ -1,78 +1,75 @@
-# This file was generated based on ".graphqlconfig". Do not edit manually.
-
-schema {
-    query: Query
-    mutation: Mutation
-}
-
 type Category {
-    drinks: [Item]
-    id: ID
-    name: String
-}
-
-type Comment {
-    author: User
-    id: ID
-    item: Item
-    replies: [Comment]
-    replyTo: Comment
-    text: String
+  id: ID
+  name: String
+  drinks: [Item]
 }
 
 type Item {
-    category: Category
-    comments: [Comment]
-    commentsCount: Int
-    id: ID
-    image: String
-    myRating: Rating
-    name: String
-    rating: Float
-    ratings: [Rating]
+  id: ID
+  name: String
+  image: String
+  price: Float
+  energy: Float
+  size: Float
+  rating: Float
+  ratings: [Rating]
+  myRating: Rating
+  category: Category
 }
 
 type LoginResponse {
-    token: String
-    user: User
+  token: String
+  user: User
 }
 
 type Mutation {
-    CreateCategory(name: String!): Category
-    CreateComment(itemId: ID!, text: String!): Comment
-    CreateItem(categoryId: ID, image: String!, name: String!): Item
-    CreateUser(email: String!, password: String!): LoginResponse
-    DeleteCategory(id: ID!): Response
-    DeleteComment(id: ID!): Response
-    DeleteItem(id: ID!): Response
-    Login(email: String!, password: String!): LoginResponse
-    RateItem(itemId: ID!, rating: Float!): Rating
-    UpdateCategory(id: ID!, name: String!): Category
-    UpdateItem(categoryId: ID, id: ID!, image: String, name: String): Item
-    UpdateUser(password: String!): User
+  CreateUser(email: String!, password: String!): LoginResponse
+  Login(email: String!, password: String!): LoginResponse
+  UpdateUser(password: String!): User
+  CreateItem(
+    name: String!
+    image: String!
+    price: Float!
+    energy: Float!
+    size: Float!
+    categoryId: ID
+  ): Item
+  DeleteItem(id: ID!): Response
+  UpdateItem(
+    id: ID!
+    name: String
+    image: String
+    price: Float
+    energy: Float
+    size: Float
+    categoryId: ID
+  ): Item
+  RateItem(itemId: ID!, rating: Float!): Rating
+  CreateCategory(name: String!): Category
+  DeleteCategory(id: ID!): Response
+  UpdateCategory(id: ID!, name: String!): Category
 }
 
 type Query {
-    comments(after: Int, first: Int, itemId: ID, userId: ID): [Comment]
-    drinks(after: Int, first: Int): [Item]
-    me: User
-    ratings(itemId: ID): [Rating]
+  drinks(first: Int, after: Int): [Item]
+  ratings(itemId: ID): [Rating]
+  me: User
 }
 
 type Rating {
-    id: ID
-    item: Item
-    rating: Float
-    user: User
+  id: ID
+  item: Item
+  user: User
+  rating: Float
 }
 
 type Response {
-    success: Boolean
+  success: Boolean
 }
 
 type User {
-    comments: [Comment]
-    email: String
-    id: ID
-    ratings: [Rating]
+  id: ID
+  email: String
+  ratings: [Rating]
 }
+
