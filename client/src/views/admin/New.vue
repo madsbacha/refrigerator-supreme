@@ -40,7 +40,7 @@
         </div>
         <div class="p-5 w-1/2">
             <div>
-                <div class="list-item" v-for="item in items" :key="item.id">
+                <div class="list-item" v-for="item in drinks" :key="item.id">
                     <label>{{ item.name }}</label>
                     <button class="float-right" v-on:click="deleteItem">Delete</button>
                 </div>
@@ -52,6 +52,7 @@
 <script>
 // import gql from 'graphql-tag'
 import CREATE_ITEM_MUTATION from '../../graphql/CreateItem.gql'
+import RETRIEVE_ITEMS from '../../graphql/Items.gql'
 
 export default {
     name: 'New',
@@ -61,16 +62,7 @@ export default {
         energy: '',
         mlSize: '',
         imageURL: '',
-        items: [
-            {
-                'id': 1,
-                'name': 'Monster Energy Drink'
-            },
-            {
-                'id': 2,
-                'name': 'Red Bull'
-            }
-        ]
+        drinks: []
     }),
     methods: {
         addItem () {
@@ -87,6 +79,9 @@ export default {
         },
         deleteItem () {
         }
+    },
+    apollo: {
+        drinks: RETRIEVE_ITEMS
     }
 }
 </script>

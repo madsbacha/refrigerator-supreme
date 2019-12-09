@@ -1,0 +1,5 @@
+query items {
+    drinks {
+        name
+    }
+}
