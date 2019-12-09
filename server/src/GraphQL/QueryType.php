@@ -11,7 +11,7 @@ class QueryType extends ObjectType
         $config = [
             'name' => 'Query',
             'fields' => [
-                'drinks' => [
+                'items' => [
                     'type' => Type::listOf($typeRegistry->Item()),
                     'args' => [
                         'first' => Type::int(),
