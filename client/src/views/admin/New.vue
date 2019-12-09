@@ -55,7 +55,10 @@ export default {
                     name: this.name,
                     image: 'test.png'
                 }
-            }).then(data => console.log(data))
+            }).then(data => this.alertUserOfAddedItem(data['data']['CreateItem']['name']))
+        },
+        alertUserOfAddedItem (name) {
+            alert(`'${name}' was added successfully!`)
         }
     }
 }
