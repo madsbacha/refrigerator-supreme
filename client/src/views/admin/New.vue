@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="container flex m-5">
         <div class="p-5 w-1/2">
             <div class="flex justify-between mb-5">
                 <div class="flex flex-col flex-grow w-2/3">
@@ -23,13 +23,26 @@
                 </div>
             </div>
             <div class="flex mb-10">
+                <div class="flex flex-col flex-grow">
+                    <label for="imageUrl" class="label">Image URL</label>
+                    <input type="text" class="input" id="imageUrl">
+                </div>
+            </div>
+            <!--<div class="flex mb-10">
                 <div class="flex flex-col">
                     <label for="image-file" class="label">Choose an image</label>
                     <input type="file" id="image-file" accept="image/*">
                 </div>
-            </div>
+            </div>-->
             <div class="flex">
                 <button type="submit" v-on:click="addItem" class="btn-submit w-1/2 hover:bg-blue-700">Add Item</button>
+            </div>
+        </div>
+        <div class="p-5 w-1/2">
+            <div>
+                <div class="list-item" v-for="item in items" :key="item.id">
+                    {{ item.name }}
+                </div>
             </div>
         </div>
     </div>
@@ -45,7 +58,18 @@ export default {
         name: '',
         price: '',
         energy: '',
-        mlSize: ''
+        mlSize: '',
+        imageURL: '',
+        items: [
+            {
+                'id': 1,
+                'name': 'Monster Energy Drink'
+            },
+            {
+                'id': 2,
+                'name': 'Red Bull'
+            }
+        ]
     }),
     methods: {
         addItem () {
