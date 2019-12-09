@@ -1,14 +1,25 @@
 {
   "name": "Refrigerator Supreme",
-  "schemaPath": "server/schema.graphql",
+  "schemaPath": "./server/schema.graphql",
+  "excludes": [
+    "./server",
+    "./client"
+  ],
   "extensions": {
     "endpoints": {
-      "Default GraphQL Endpoint": {
+      "Online GraphQl Server": {
         "url": "https://apirefrigerator.kanonje.dk/",
         "headers": {
           "user-agent": "JS GraphQL"
         },
-        "introspect": false
+        "introspect": true
+      },
+      "Localhost": {
+        "url": "http://localhost:4000",
+        "headers": {
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": true
       }
     }
   }
