@@ -13,7 +13,7 @@ class CategoryType extends ObjectType
                 return [
                     'id' => Type::id(),
                     'name' => Type::string(),
-                    'drinks' => [
+                    'items' => [
                         'type' => Type::listOf($types->Item()),
                         'resolve' => function ($rootValue, $args, $context) {
                             return $context->Db->Items->Select(['category_id' => $rootValue['id']]);
