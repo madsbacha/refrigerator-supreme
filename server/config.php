@@ -1,10 +1,12 @@
 <?php
 
-function env($key, $default = null) {
-    if ($_ENV[$key] !== null) {
-        return $_ENV[$key];
+if (!function_exists('env')) {
+    function env($key, $default = null) {
+        if ($_ENV[$key] !== null) {
+            return $_ENV[$key];
+        }
+        return $default;
     }
-    return $default;
 }
 
 return [
