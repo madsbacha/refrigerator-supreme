@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import RealHome from '../views/RealHome'
+import Item from '../components/Item'
 
 Vue.use(VueRouter)
 
@@ -28,6 +29,9 @@ const routes = [
       window.localStorage.removeItem('apollo-token')
       next({ name: 'login' })
     }
+  },
+  {
+    path: '/item/:name', component: Item, props: true
   }
 ]
 
