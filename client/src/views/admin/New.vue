@@ -25,7 +25,7 @@
             <div class="flex mb-10">
                 <div class="flex flex-col flex-grow">
                     <label for="imageUrl" class="label">Image URL</label>
-                    <input type="text" class="input" id="imageUrl">
+                    <input type="text" v-model="imageURL" class="input" id="imageUrl">
                 </div>
             </div>
             <!--<div class="flex mb-10">
@@ -50,7 +50,6 @@
 </template>
 
 <script>
-// import gql from 'graphql-tag'
 import RETRIEVE_ITEMS from '../../graphql/Items.gql'
 import CREATE_ITEM_MUTATION from '../../graphql/CreateItem.gql'
 import DELETE_ITEM_MUTATION from '../../graphql/DeleteItem.gql'
@@ -70,16 +69,17 @@ export default {
             this.$apollo.mutate({
                 mutation: CREATE_ITEM_MUTATION,
                 variables: {
-                    energy: 400,
-                    image: 'test.png',
-                    name: 'Monster Energy Drink',
-                    price: 12,
-                    size: 250
+                    name: this.name,
+                    image: this.imageURL,
+                    price: this.price,
+                    energy: this.energy,
+                    size: this.mlSize
                 }
-            }).then(data => this.alertUserOfAddedItem(data['data']['CreateItem']['name']))
-        },
-        alertUserOfAddedItem (name) {
-            alert(`'${name}' was added successfully!`)
+            }).then(res => {
+                if (res['data']['CreateItem']) {
+                    this.items.push(res['data']['CreateItem'])
+                }
+            })
         },
         deleteItem (delId) {
             this.$apollo.mutate({
@@ -87,14 +87,12 @@ export default {
                 variables: {
                     id: delId
                 }
-            }).then(data => this.handleDeleteResponse(delId))
-        },
-        handleDeleteResponse (delId) {
-            console.log(delId)
-            let index = this.items.map(x => {
-                return x.id
-            }).indexOf(delId)
-            this.items.splice(index, 1)
+            }).then(res => {
+                if (res['data']['DeleteItem']['success']) {
+                    const itemsIndex = this.items.findIndex(item => item.id === delId)
+                    this.items.splice(itemsIndex, 1)
+                }
+            })
         }
     },
     apollo: {

@@ -1,6 +1,7 @@
+#import "./ItemFragment.gql"
+
 query allItems {
     items {
-        id
-        name
+        ...item
     }
 }
