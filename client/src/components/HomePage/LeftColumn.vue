@@ -1,6 +1,6 @@
 <template>
     <div class="container__left">
-        <div class="flex justify-center items-center">
+        <div class="flex max-w-3xl justify-center items-center">
             <div class="flex flex-col">
                 <h1 class="heading">Life is too short for unpleasent beverages.</h1>
                 <p class="mt-16">
@@ -29,7 +29,7 @@ export default {
     &__left {
       background-color: #080808;
       color: #fff;
-      @apply p-16 flex w-1/2 h-screen;
+      @apply p-16 flex w-1/2 justify-center h-screen;
 
       p {
         @apply text-xl pb-12;
