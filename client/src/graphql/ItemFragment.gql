@@ -1,0 +1,12 @@
+fragment item on Item {
+  category {
+    name
+  }
+  energy
+  id
+  image
+  name
+  price
+  rating
+  size
+}

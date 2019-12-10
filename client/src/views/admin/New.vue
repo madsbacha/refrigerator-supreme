@@ -9,23 +9,23 @@
                 </div>
                 <div class="flex flex-col flex-grow ml-8">
                     <label for="price" class="label">Price</label>
-                    <input type="text" id="price" class="input" placeholder="12,00 kr.">
+                    <input type="text" v-model="price" id="price" class="input" placeholder="12,00">
                 </div>
             </div>
             <div class="flex justify=between mb-5">
                 <div class="flex flex-col flex-grow w-2/3">
                     <label for="energy" class="label">Energy per 100 ml</label>
-                    <input type="number" id="energy" class="input" placeholder="487 kJ">
+                    <input type="number" v-model="energy" id="energy" class="input" placeholder="487 kJ">
                 </div>
                 <div class="flex flex-col flex-grow ml-8">
                     <label for="mlSize" class="label">Milliliter</label>
-                    <input type="number" id="mlSize" class="input" placeholder="250ml">
+                    <input type="number" v-model="mlSize" id="mlSize" class="input" placeholder="250ml">
                 </div>
             </div>
             <div class="flex mb-10">
                 <div class="flex flex-col flex-grow">
                     <label for="imageUrl" class="label">Image URL</label>
-                    <input type="text" class="input" id="imageUrl">
+                    <input type="text" v-model="imageURL" class="input" id="imageUrl">
                 </div>
             </div>
             <!--<div class="flex mb-10">
@@ -50,7 +50,6 @@
 </template>
 
 <script>
-// import gql from 'graphql-tag'
 import RETRIEVE_ITEMS from '../../graphql/Items.gql'
 import CREATE_ITEM_MUTATION from '../../graphql/CreateItem.gql'
 import DELETE_ITEM_MUTATION from '../../graphql/DeleteItem.gql'
@@ -71,12 +70,16 @@ export default {
                 mutation: CREATE_ITEM_MUTATION,
                 variables: {
                     name: this.name,
-                    image: 'test.png'
+                    image: this.imageURL,
+                    price: this.price,
+                    energy: this.energy,
+                    size: this.mlSize
                 }
-            }).then(data => this.alertUserOfAddedItem(data['data']['CreateItem']['name']))
-        },
-        alertUserOfAddedItem (name) {
-            alert(`'${name}' was added successfully!`)
+            }).then(res => {
+                if (res['data']['CreateItem']) {
+                    this.items.push(res['data']['CreateItem'])
+                }
+            })
         },
         deleteItem (delId) {
             this.$apollo.mutate({
@@ -84,7 +87,12 @@ export default {
                 variables: {
                     id: delId
                 }
-            }).then(response => console.log(response))
+            }).then(res => {
+                if (res['data']['DeleteItem']['success']) {
+                    const itemsIndex = this.items.findIndex(item => item.id === delId)
+                    this.items.splice(itemsIndex, 1)
+                }
+            })
         }
     },
     apollo: {

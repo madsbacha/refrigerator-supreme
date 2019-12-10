@@ -1,8 +1,7 @@
-mutation CreateItem($name: String!, $image: String!) {
-    CreateItem (name: $name, image: $image) {
-        id
-        name
-        image
-        rating
+#import "./ItemFragment.gql"
+
+mutation CreateItem($name: String!, $image: String!, $price: Float!, $energy: Float!, $size: Float!) {
+    CreateItem (name: $name, image: $image, price: $price, energy: $energy, size: $size) {
+        ...item
     }
 }
