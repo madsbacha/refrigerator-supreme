@@ -1,58 +1,66 @@
 # This file was generated based on ".graphqlconfig". Do not edit manually.
 
+schema {
+    query: Query
+    mutation: Mutation
+}
+
 type Category {
-  id: ID
-  name: String
-  drinks: [Item]
+    id: ID
+    items: [Item]
+    name: String
 }
 
 type Item {
-  id: ID
-  name: String
-  image: String
-  rating: Float
-  ratings: [Rating]
-  myRating: Rating
-  category: Category
+    category: Category
+    energy: Float
+    id: ID
+    image: String
+    myRating: Rating
+    name: String
+    price: Float
+    rating: Float
+    ratings: [Rating]
+    size: Float
 }
 
 type LoginResponse {
-  token: String
-  user: User
+    token: String
+    user: User
 }
 
 type Mutation {
-  CreateUser(email: String!, password: String!): LoginResponse
-  Login(email: String!, password: String!): LoginResponse
-  UpdateUser(password: String!): User
-  CreateItem(name: String!, image: String!, categoryId: ID): Item
-  DeleteItem(id: ID!): Response
-  UpdateItem(id: ID!, name: String, image: String, categoryId: ID): Item
-  RateItem(itemId: ID!, rating: Float!): Rating
-  CreateCategory(name: String!): Category
-  DeleteCategory(id: ID!): Response
-  UpdateCategory(id: ID!, name: String!): Category
+    CreateCategory(name: String!): Category
+    CreateItem(categoryId: ID, energy: Float!, image: String!, name: String!, price: Float!, size: Float!): Item
+    CreateUser(email: String!, password: String!): LoginResponse
+    DeleteCategory(id: ID!): Response
+    DeleteItem(id: ID!): Response
+    Login(email: String!, password: String!): LoginResponse
+    RateItem(itemId: ID!, rating: Float!): Rating
+    UpdateCategory(id: ID!, name: String!): Category
+    UpdateItem(categoryId: ID, energy: Float, id: ID!, image: String, name: String, price: Float, size: Float): Item
+    UpdateUser(password: String!): User
 }
 
 type Query {
-  drinks(first: Int, after: Int): [Item]
-  ratings(itemId: ID): [Rating]
-  me: User
+    items(after: Int, first: Int): [Item]
+    me: User
+    ratings(itemId: ID): [Rating]
 }
 
 type Rating {
-  id: ID
-  item: Item
-  user: User
-  rating: Float
+    id: ID
+    item: Item
+    rating: Float
+    user: User
 }
 
 type Response {
-  success: Boolean
+    success: Boolean
 }
 
 type User {
-  id: ID
-  email: String
-  ratings: [Rating]
+    email: String
+    id: ID
+    ratings: [Rating]
 }
