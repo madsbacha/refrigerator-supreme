@@ -1,39 +1,39 @@
 <template>
-  <section class="background">
-    <div :style="{ backgroundImage: `url(${ itemBackground })` }"></div>
+  <section class="background" :style="{ backgroundImage: `url(${ itemBackground })` }">
+    <div></div>
   </section>
 </template>
 
 <script>
-import gql from 'graphql-tag'
+import ITEM from '../graphql/Item.gql'
 
 export default {
-  name: 'Item.vue',
+  name: 'Item',
   data: () => ({
-    item: []
+    item: null
   }),
   props: {
-    name: String
+    name: {
+      type: String,
+      required: true
+    }
   },
   computed: {
-    itemBackground: function () {
-      return require(`@/assets/bg-${this.item.slug}.png`)
+    itemBackground () {
+      console.log('Run')
+      try {
+        return require(`@/assets/bg-${this.name}.png`)
+      } catch (err) {
+        return '' // TODO: replace with an image to be loaded if the image cannot be found
+      }
     }
   },
   apollo: {
     item: {
-      query: gql`query GetItem($name: String!) {
-      item(slug: $name) {
-        id,
-        rating,
-        name,
-        image,
-        slug
-      }
-    }`,
+      query: ITEM,
       variables () {
         return {
-          name: this.name
+          slug: this.name
         }
       }
     }

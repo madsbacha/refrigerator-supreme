@@ -1,0 +1,9 @@
+query GetItem($slug: String!) {
+  item(slug: $slug) {
+    id,
+    rating,
+    name,
+    image,
+    slug
+  }
+}
