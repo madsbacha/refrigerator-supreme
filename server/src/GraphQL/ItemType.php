@@ -18,6 +18,7 @@ class ItemType extends ObjectType
                     'price' => Type::float(),
                     'energy' => Type::float(),
                     'size' => Type::float(),
+                    'slug' => Type::string(),
                     'rating' => [
                         'type' => Type::float(),
                         'resolve' => function ($rootValue, $args, $context) {

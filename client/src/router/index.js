@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import RealHome from '../views/RealHome'
 
 Vue.use(VueRouter)
 
@@ -11,14 +12,14 @@ const routes = [
         component: Home
     },
     {
-        path: '/login',
-        name: 'login',
-        component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue')
+        path: '/realhome',
+        name: 'realhome',
+        component: RealHome
     },
     {
-        path: '/admin/new',
-        name: 'admin-new',
-        component: () => import(/* webpackChunkName: "about" */ '../views/admin/New.vue')
+        path: '/login',
+        name: 'login',
+        component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue')
     },
     {
         path: '/logout',
@@ -27,6 +28,11 @@ const routes = [
             window.localStorage.removeItem('apollo-token')
             next({ name: 'login' })
         }
+    },
+    {
+        path: '/admin/new',
+        name: 'admin-new',
+        component: () => import(/* webpackChunkName: "about" */ '../views/admin/New.vue')
     }
 ]
 

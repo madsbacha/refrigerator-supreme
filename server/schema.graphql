@@ -22,6 +22,7 @@ type Item {
     rating: Float
     ratings: [Rating]
     size: Float
+    slug: String
 }
 
 type LoginResponse {
@@ -31,14 +32,14 @@ type LoginResponse {
 
 type Mutation {
     CreateCategory(name: String!): Category
-    CreateItem(categoryId: ID, energy: Float!, image: String!, name: String!, price: Float!, size: Float!): Item
+    CreateItem(categoryId: ID, energy: Float!, image: String!, name: String!, price: Float!, size: Float!, slug: String!): Item
     CreateUser(email: String!, password: String!): LoginResponse
     DeleteCategory(id: ID!): Response
     DeleteItem(id: ID!): Response
     Login(email: String!, password: String!): LoginResponse
     RateItem(itemId: ID!, rating: Float!): Rating
     UpdateCategory(id: ID!, name: String!): Category
-    UpdateItem(categoryId: ID, energy: Float, id: ID!, image: String, name: String, price: Float, size: Float): Item
+    UpdateItem(categoryId: ID, energy: Float, id: ID!, image: String, name: String, price: Float, size: Float, slug: String): Item
     UpdateUser(password: String!): User
 }
 

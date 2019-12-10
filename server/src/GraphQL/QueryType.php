@@ -27,6 +27,17 @@ class QueryType extends ObjectType
                         return $context->Db->Items->Select($where);
                     }
                 ],
+                'item' => [
+                    'type' => $typeRegistry->Item(),
+                    'args' => [
+                        'slug' => Type::nonNull(Type::string())
+                    ],
+                    'resolve' => function ($rootValue, $args, $context) {
+                        return $context->Db->Items->Get([
+                            'slug' => $args['slug']
+                        ]);
+                    }
+                ],
                 'ratings' => [
                     'type' => Type::listOf($typeRegistry->Rating()),
                     'args' => [

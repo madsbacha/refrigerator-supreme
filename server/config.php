@@ -1,18 +1,28 @@
 <?php
+
+if (!function_exists('env')) {
+    function env($key, $default = null) {
+        if ($_ENV[$key] !== null) {
+            return $_ENV[$key];
+        }
+        return $default;
+    }
+}
+
 return [
     'database' => [
-        'database_type' => 'sqlite',
-        'database_file' => __DIR__.'/database.sqlite',
-        'database_name' => 'main',
-        'server' => 'localhost',
-        'username' => '',
-        'password' => '',
-        'prefix' => ''
+        'database_type' => env('DB_TYPE', 'sqlite'),
+        'database_file' => env('DB_FILE', __DIR__.'/database.sqlite'),
+        'database_name' => env('DB_NAME', 'main'),
+        'server' => env('DB_SERVER', 'localhost'),
+        'username' => env('DB_USER'),
+        'password' => env('DB_PASSWORD'),
+        'prefix' => env('DB_PREFIX', '')
     ],
     'jwt' => [
-        'key' => '123',
-        'issuer' => 'http://localhost',
-        'audience' => 'http://localhost',
+        'key' => env('JWT_KEY'),
+        'issuer' => env('JWT_ISSUER', 'http://localhost'),
+        'audience' => env('JWT_AUDIENCE', 'http://localhost'),
         'supported_algorithms' => array('HS256')
     ]
 ];

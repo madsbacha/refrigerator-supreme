@@ -94,6 +94,7 @@ class MutationType extends ObjectType
                         'price' => Type::nonNull(Type::float()),
                         'energy' => Type::nonNull(Type::float()),
                         'size' => Type::nonNull(Type::float()),
+                        'slug' => Type::nonNull(Type::string()),
                         'categoryId' => Type::id()
                     ],
                     'resolve' => function ($root, $args, $context) {
@@ -106,6 +107,7 @@ class MutationType extends ObjectType
                             'price' => $args['price'],
                             'energy' => $args['energy'],
                             'size' => $args['size'],
+                            'slug' => $args['slug'],
                             'category_id' => array_key_exists('category_id', $args) ? $args['category_id'] : null
                         ];
                         // TODO: Make sure the user has permission to create new items
@@ -134,6 +136,7 @@ class MutationType extends ObjectType
                         'price' => Type::float(),
                         'energy' => Type::float(),
                         'size' => Type::float(),
+                        'slug' => Type::string(),
                         'categoryId' => Type::id()
                     ],
                     'resolve' => function ($root, $args, $context) {
@@ -155,6 +158,9 @@ class MutationType extends ObjectType
                         }
                         if (array_key_exists('size', $args)) {
                             $data['size'] = $args['size'];
+                        }
+                        if (array_key_exists('slug', $args)) {
+                            $data['slug'] = $args['slug'];
                         }
                         if (array_key_exists('categoryId', $args)) {
                             $data['category_id'] = $args['categoryId'];

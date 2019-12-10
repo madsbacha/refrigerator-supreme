@@ -8,10 +8,15 @@ use Api\GraphQL\MutationType;
 use Api\GraphQL\QueryType;
 use Api\GraphQL\TypeRegistry;
 use Api\Util\JWTHelper;
+use Dotenv\Dotenv;
 use GraphQL\Type\Schema;
 use Siler\GraphQL;
 use Siler\Http\Request;
 use Siler\Http\Response;
+
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+$dotenv->required('JWT_KEY');
 
 // Enable CORS
 Response\header('Access-Control-Allow-Origin', '*');
