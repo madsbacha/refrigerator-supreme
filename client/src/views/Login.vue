@@ -25,7 +25,7 @@
             <p class="ml-4">@gmail.com</p>
           </div>
           <input v-model="password" type="password" placeholder="Password" required class="input__password" />
-          <Button v-on:click="handleSubmit" class="w-1/6 mt-8" v-text="submitText" />
+          <Button v-on:click="handleSubmit" class="w-1/6 mt-8" :text="submitText" />
           <p class="inline ml-3">or <button v-on:click="toggleView" class="text-blue-600 hover:underline hover:text-blue-500" v-text="alternativeText"></button></p>
         </div>
       </div>
@@ -34,8 +34,9 @@
 </template>
 
 <script>
-import gql from 'graphql-tag'
 import Button from '../components/Button'
+import CREATE_USER from '../graphql/CreateUser.gql'
+import LOGIN from '../graphql/Login.gql'
 
 export default {
   name: 'Login',
@@ -56,38 +57,15 @@ export default {
   },
   methods: {
     handleSubmit () {
-      if (this.type === 'login') {
-        this.login()
-      } else {
-        this.create()
-      }
+      this.mutate()
     },
     toggleView () {
       this.type = this.type === 'login' ? 'create' : 'login'
     },
-    login () {
+    mutate () {
       this.clearErrors()
       this.$apollo.mutate({
-        mutation: gql`mutation($email: String!, $password: String!) {
-          Login(email: $email, password: $password) {
-            token
-          }
-        }`,
-        variables: {
-          email: this.email + '@gmail.com',
-          password: this.password
-        }
-      }).then(this.handleLoginResponse).catch(this.handleError)
-    },
-    create () {
-      this.clearErrors()
-      this.$apollo.mutate({
-        mutation: gql`mutation($email: String!, $password: String!) {
-        CreateUser(email: $email, password: $password) {
-          token,
-          user { id, email }
-        }
-      }`,
+        mutation: this.type === 'login' ? LOGIN : CREATE_USER,
         variables: {
           email: this.email + '@gmail.com',
           password: this.password
