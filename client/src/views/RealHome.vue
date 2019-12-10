@@ -3,11 +3,13 @@
     <LeftColumn/>
     <div class="container__right">
       <RightColumnItem
+        bg-color="#F17849"
         level="upper"
         leading-text="Already a supremer?"
         heading="Submit new vote"
       />
       <RightColumnItem
+        bg-color="#FAB131"
         level="lower"
         leading-text="Top rated beverage"
         heading="Monster Energy Juice"
