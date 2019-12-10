@@ -1,8 +1,6 @@
-mutation CreateItem($name: String!, $image: String!) {
-    CreateItem (name: $name, image: $image) {
+mutation CreateItem($energy: Float!, $image: String!, $name: String!, $price: Float!, $size: Float!) {
+    CreateItem (energy: $energy, image: $image, name: $name, price: $price, size: $size) {
         id
         name
-        image
-        rating
     }
 }

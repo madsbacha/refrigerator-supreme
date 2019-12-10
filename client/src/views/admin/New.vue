@@ -9,17 +9,17 @@
                 </div>
                 <div class="flex flex-col flex-grow ml-8">
                     <label for="price" class="label">Price</label>
-                    <input type="text" id="price" class="input" placeholder="12,00 kr.">
+                    <input type="number" v-model="price" id="price" class="input" placeholder="12,00 kr.">
                 </div>
             </div>
             <div class="flex justify=between mb-5">
                 <div class="flex flex-col flex-grow w-2/3">
                     <label for="energy" class="label">Energy per 100 ml</label>
-                    <input type="number" id="energy" class="input" placeholder="487 kJ">
+                    <input type="number" v-model="energy" id="energy" class="input" placeholder="487 kJ">
                 </div>
                 <div class="flex flex-col flex-grow ml-8">
                     <label for="mlSize" class="label">Milliliter</label>
-                    <input type="number" id="mlSize" class="input" placeholder="250ml">
+                    <input type="number" v-model="mlSize" id="mlSize" class="input" placeholder="250ml">
                 </div>
             </div>
             <div class="flex mb-10">
@@ -70,8 +70,11 @@ export default {
             this.$apollo.mutate({
                 mutation: CREATE_ITEM_MUTATION,
                 variables: {
-                    name: this.name,
-                    image: 'test.png'
+                    energy: 400,
+                    image: 'test.png',
+                    name: 'Monster Energy Drink',
+                    price: 12,
+                    size: 250
                 }
             }).then(data => this.alertUserOfAddedItem(data['data']['CreateItem']['name']))
         },
@@ -84,7 +87,14 @@ export default {
                 variables: {
                     id: delId
                 }
-            }).then(response => console.log(response))
+            }).then(data => this.handleDeleteResponse(delId))
+        },
+        handleDeleteResponse (delId) {
+            console.log(delId)
+            let index = this.items.map(x => {
+                return x.id
+            }).indexOf(delId)
+            this.items.splice(index, 1)
         }
     },
     apollo: {
