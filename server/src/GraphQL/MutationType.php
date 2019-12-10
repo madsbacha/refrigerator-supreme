@@ -94,12 +94,15 @@ class MutationType extends ObjectType
                         'price' => Type::nonNull(Type::float()),
                         'energy' => Type::nonNull(Type::float()),
                         'size' => Type::nonNull(Type::float()),
-                        'slug' => Type::nonNull(Type::string()),
+                        'slug' => Type::string(),
                         'categoryId' => Type::id()
                     ],
                     'resolve' => function ($root, $args, $context) {
                         if (!$context->IsLoggedIn) {
                             throw new Unauthorized();
+                        }
+                        if (!array_key_exists('slug', $args)) {
+                            $args['slug'] = str_replace(' ', '-', $args['name']); // Escape this?
                         }
                         $data = [
                             'name' => $args['name'],
