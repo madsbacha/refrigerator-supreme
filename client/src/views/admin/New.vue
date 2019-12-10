@@ -1,31 +1,30 @@
 <template>
-    <div class="container flex m-5">
+    <form class="flex container m-5">
         <div class="p-5 w-1/2">
             <div class="flex justify-between mb-5">
                 <div class="flex flex-col flex-grow w-2/3">
                     <label for="name" class="label">Drink Name</label>
-                    <input type="text" v-model="name" id="name" class="px-3 py-2 bg-gray-200 rounded shadow"
-                           placeholder="Monster Energy">
+                    <input type="text" v-model="name" id="name" class="input" placeholder="Monster Energy" required>
                 </div>
                 <div class="flex flex-col flex-grow ml-8">
                     <label for="price" class="label">Price</label>
-                    <input type="number" v-model="price" id="price" class="input" placeholder="12,00 kr.">
+                    <input type="number" v-model="price" id="price" class="input" placeholder="12,00 kr." required>
                 </div>
             </div>
             <div class="flex justify=between mb-5">
                 <div class="flex flex-col flex-grow w-2/3">
                     <label for="energy" class="label">Energy per 100 ml</label>
-                    <input type="number" v-model="energy" id="energy" class="input" placeholder="487 kJ">
+                    <input type="number" v-model="energy" id="energy" class="input" placeholder="487 kJ" required>
                 </div>
                 <div class="flex flex-col flex-grow ml-8">
                     <label for="mlSize" class="label">Milliliter</label>
-                    <input type="number" v-model="mlSize" id="mlSize" class="input" placeholder="250ml">
+                    <input type="number" v-model="size" id="mlSize" class="input" placeholder="250ml" required>
                 </div>
             </div>
             <div class="flex mb-10">
                 <div class="flex flex-col flex-grow">
                     <label for="imageUrl" class="label">Image URL</label>
-                    <input type="text" v-model="imageURL" class="input" id="imageUrl">
+                    <input type="text" v-model="imageURL" class="input" id="imageUrl" required>
                 </div>
             </div>
             <!--<div class="flex mb-10">
@@ -35,7 +34,8 @@
                 </div>
             </div>-->
             <div class="flex">
-                <button type="submit" v-on:click="addItem" class="btn-submit w-1/2 hover:bg-blue-700">Add Item</button>
+                <button type="submit" v-on:click="addItem" class="btn-submit w-1/2 hover:bg-blue-700">Add Item
+                </button>
             </div>
         </div>
         <div class="p-5 w-1/2">
@@ -46,7 +46,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </template>
 
 <script>
@@ -60,7 +60,7 @@ export default {
         name: '',
         price: '',
         energy: '',
-        mlSize: '',
+        size: '',
         imageURL: '',
         items: []
     }),
@@ -73,7 +73,7 @@ export default {
                     image: this.imageURL,
                     price: this.price,
                     energy: this.energy,
-                    size: this.mlSize
+                    size: this.size
                 }
             }).then(res => {
                 if (res['data']['CreateItem']) {
