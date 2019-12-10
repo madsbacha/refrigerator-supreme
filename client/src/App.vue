@@ -8,10 +8,16 @@
 import '@/assets/tailwind.css'
 export default {
   created () {
-    this.$token = window.sessionStorage.getItem('token')
+    this.$token = window.localStorage.getItem('apollo-token')
     if (this.$token == null) {
       this.$router.push({ name: 'login' })
     }
   }
 }
 </script>
+
+<style lang="scss">
+  #app {
+    background: theme('colors.bg.dark')
+  }
+</style>

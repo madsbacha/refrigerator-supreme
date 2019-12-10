@@ -10,7 +10,7 @@ class ItemRepository extends Repository
 
     protected function getSelect()
     {
-        return ['id', 'name', 'image', 'category_id', 'price', 'energy', 'size'];
+        return ['id', 'name', 'image', 'category_id', 'price', 'energy', 'size', 'slug'];
     }
 
     public function FindById($id)
