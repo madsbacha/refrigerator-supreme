@@ -1,5 +1,5 @@
 <template>
-    <form class="flex container m-5" v-on:submit.prevent="addItem">
+    <form class="flex container m-5" v-on:submit.prevent="submit">
         <div class="p-5 w-1/2">
             <div class="flex justify-between mb-5">
                 <div class="flex flex-col flex-grow w-2/3">
@@ -24,7 +24,7 @@
             <div class="flex mb-10">
                 <div class="flex flex-col flex-grow">
                     <label for="imageUrl" class="label">Image URL</label>
-                    <input type="text" v-model="imageURL" class="input" id="imageUrl" required>
+                    <input type="text" v-model="imageURL" class="input" id="imageUrl" placeholder="website.com/cool-drink.png" required>
                 </div>
             </div>
             <!--<div class="flex mb-10">
@@ -34,7 +34,7 @@
                 </div>
             </div>-->
             <div class="flex">
-                <button type="submit" class="btn-submit w-1/2 hover:bg-blue-700">Add Item</button>
+                <button type="submit" class="btn-submit w-1/2 hover:bg-blue-700">{{ submitButtonText }}</button>
                 <button type="button" class="btn-secondary" @click="resetForm">Clear</button>
             </div>
         </div>
@@ -42,8 +42,11 @@
             <div>
                 <div class="list-item" v-for="item in items" :key="item.id">
                     <label>{{ item.name }}</label>
-                    <button class="float-right" type="button" v-on:click="deleteItem(item.id)">
+                    <button class="px-2 float-right" type="button" v-on:click="deleteItem(item.id)">
                         <font-awesome-icon icon="trash"/>
+                    </button>
+                    <button class="px-3 float-right" type="button" v-on:click="editItem(item)">
+                        Edit
                     </button>
                 </div>
             </div>
@@ -64,10 +67,19 @@ export default {
         energy: '',
         size: '',
         imageURL: '',
-        items: []
+        items: [],
+        submitButtonText: 'Add Item',
+        editing: null
     }),
     methods: {
-        addItem () {
+        submit () {
+            try {
+                this.validateImageExtension()
+            } catch (e) {
+                window.alert(e)
+                return
+            }
+            this.submitButtonText = 'Add Item'
             this.$apollo.mutate({
                 mutation: CREATE_ITEM_MUTATION,
                 variables: {
@@ -102,6 +114,22 @@ export default {
             this.energy = ''
             this.size = ''
             this.imageURL = ''
+            this.submitButtonText = 'Add Item'
+        },
+        editItem (item) {
+            this.editing = item
+            this.name = item['name']
+            this.price = item['price']
+            this.energy = item['energy']
+            this.size = item['size']
+            this.imageURL = item['image']
+            this.submitButtonText = 'Submit Changes'
+        },
+        validateImageExtension () {
+            let extension = this.imageURL.split('.').pop()
+            if (extension !== 'png') {
+                throw new Error('The linked image is not a PNG. \nTake your shit image somewhere else.')
+            }
         }
     },
     apollo: {
