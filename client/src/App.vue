@@ -8,6 +8,7 @@
 import '@/assets/tailwind.css'
 
 export default {
+    name: 'App',
     created () {
         this.$token = window.localStorage.getItem('apollo-token')
         if (this.$token == null) {
