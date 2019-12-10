@@ -4,7 +4,8 @@
     "leocavalcante/siler": "^1.6",
     "catfan/medoo": "^1.7",
     "firebase/php-jwt": "^5.0",
-    "egulias/email-validator": "^2.1"
+    "egulias/email-validator": "^2.1",
+    "vlucas/phpdotenv": "^4.0"
   },
   "autoload": {
     "psr-4": {
