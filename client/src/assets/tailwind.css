@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .label {
-    @apply block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2;
+    @apply block uppercase tracking-wide text-xs font-bold mb-2 text-white;
 }
 
 .input {
@@ -12,6 +12,10 @@
 
 .btn-submit {
     @apply bg-blue-500 text-white font-bold py-2 px-4 rounded;
+}
+
+.btn-secondary {
+    @apply text-white font-bold py-2 px-4 rounded;
 }
 
 .list-item {

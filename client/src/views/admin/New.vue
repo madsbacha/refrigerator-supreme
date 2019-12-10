@@ -34,8 +34,8 @@
                 </div>
             </div>-->
             <div class="flex">
-                <button type="submit" class="btn-submit w-1/2 hover:bg-blue-700">Add Item
-                </button>
+                <button type="submit" class="btn-submit w-1/2 hover:bg-blue-700">Add Item</button>
+                <button type="button" class="btn-secondary" @click="resetForm">Clear</button>
             </div>
         </div>
         <div class="p-5 w-1/2">
@@ -43,7 +43,7 @@
                 <div class="list-item" v-for="item in items" :key="item.id">
                     <label>{{ item.name }}</label>
                     <button class="float-right" type="button" v-on:click="deleteItem(item.id)">
-                        <font-awesome-icon icon="trash" />
+                        <font-awesome-icon icon="trash"/>
                     </button>
                 </div>
             </div>
@@ -95,6 +95,13 @@ export default {
                     this.items.splice(itemsIndex, 1)
                 }
             })
+        },
+        resetForm () {
+            this.name = ''
+            this.price = ''
+            this.energy = ''
+            this.size = ''
+            this.imageURL = ''
         }
     },
     apollo: {
