@@ -1,5 +1,5 @@
 <template>
-    <form class="flex container m-5">
+    <form class="flex container m-5" v-on:submit.prevent="addItem">
         <div class="p-5 w-1/2">
             <div class="flex justify-between mb-5">
                 <div class="flex flex-col flex-grow w-2/3">
@@ -34,7 +34,7 @@
                 </div>
             </div>-->
             <div class="flex">
-                <button type="submit" v-on:click="addItem" class="btn-submit w-1/2 hover:bg-blue-700">Add Item
+                <button type="submit" class="btn-submit w-1/2 hover:bg-blue-700">Add Item
                 </button>
             </div>
         </div>
@@ -42,7 +42,7 @@
             <div>
                 <div class="list-item" v-for="item in items" :key="item.id">
                     <label>{{ item.name }}</label>
-                    <button class="float-right" v-on:click="deleteItem(item.id)">Delete</button>
+                    <button class="float-right" type="button" v-on:click="deleteItem(item.id)">Delete</button>
                 </div>
             </div>
         </div>
