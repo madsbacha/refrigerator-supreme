@@ -42,7 +42,9 @@
             <div>
                 <div class="list-item" v-for="item in items" :key="item.id">
                     <label>{{ item.name }}</label>
-                    <button class="float-right" type="button" v-on:click="deleteItem(item.id)">Delete</button>
+                    <button class="float-right" type="button" v-on:click="deleteItem(item.id)">
+                        <font-awesome-icon icon="trash" />
+                    </button>
                 </div>
             </div>
         </div>
