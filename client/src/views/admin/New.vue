@@ -25,6 +25,7 @@
                 <div class="flex flex-col flex-grow">
                     <label for="imageUrl" class="label">Image URL</label>
                     <input type="text" v-model="imageURL" class="input" id="imageUrl" placeholder="website.com/cool-drink.png" required>
+                    <label class="error-label">{{ imageError }}</label>
                 </div>
             </div>
             <!--<div class="flex mb-10">
@@ -69,14 +70,15 @@ export default {
         imageURL: '',
         items: [],
         submitButtonText: 'Add Item',
-        editing: null
+        editing: null,
+        imageError: ''
     }),
     methods: {
         submit () {
             try {
                 this.validateImageExtension()
             } catch (e) {
-                window.alert(e)
+                this.imageError = e.message
                 return
             }
             this.submitButtonText = 'Add Item'
@@ -127,8 +129,10 @@ export default {
         },
         validateImageExtension () {
             let extension = this.imageURL.split('.').pop()
-            if (extension !== 'png') {
+            if (extension.toLowerCase() !== 'png') {
                 throw new Error('The linked image is not a PNG. \nTake your shit image somewhere else.')
+            } else {
+                this.imageError = ''
             }
         }
     },

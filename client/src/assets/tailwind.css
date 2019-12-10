@@ -6,6 +6,10 @@
     @apply block uppercase tracking-wide text-xs font-bold mb-2 text-white;
 }
 
+.error-label {
+    @apply block tracking-wide text-xs mb-2 text-red-400
+}
+
 .input {
     @apply px-3 py-2 bg-gray-200 rounded shadow;
 }
