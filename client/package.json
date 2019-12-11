@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
+    "@voerro/vue-tagsinput": "^2.1.0",
     "@vue/cli-plugin-babel": "^4.0.0",
     "@vue/cli-plugin-eslint": "^4.0.0",
     "@vue/cli-plugin-pwa": "^4.0.0",

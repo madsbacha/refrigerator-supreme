@@ -21,11 +21,23 @@
                     <input type="number" v-model="size" id="mlSize" class="input" placeholder="250ml" required>
                 </div>
             </div>
-            <div class="flex mb-10">
+            <div class="flex mb-5">
                 <div class="flex flex-col flex-grow">
                     <label for="imageUrl" class="label">Image URL</label>
-                    <input type="text" v-model="imageURL" class="input" id="imageUrl" placeholder="website.com/cool-drink.png" required>
+                    <input type="text" v-model="imageURL" class="input" id="imageUrl"
+                           placeholder="website.com/cool-drink.png" required>
                     <label class="error-label">{{ imageError }}</label>
+                </div>
+            </div>
+            <div class="flex mb-10">
+                <div class="flex flex-col flex-grow">
+                    <label class="label">Tags</label>
+                    <tags-input element-id="tags" v-model="selectedTags" class="input"
+                                :existing-tags="[{ key: 1, value: 'Drink' },{ key: 2, value: 'Sugar-Free' },{ key: 3, value: 'Piss' }]"
+                                :add-tags-on-comma="true"
+                                :typeahead-hide-discard="true"
+                                :typeahead-always-show="true"
+                                :typeahead="true"/>
                 </div>
             </div>
             <!--<div class="flex mb-10">
@@ -43,7 +55,7 @@
             <div>
                 <div class="list-item" v-for="item in items" :key="item.id">
                     <label>{{ item.name }}</label>
-                    <button class="px-2 float-right" type="button" v-on:click="deleteItem(item.id)">
+                    <button class="px-2 float-right" type="button" v-on:click="deleteItem(item)">
                         <font-awesome-icon icon="trash"/>
                     </button>
                     <button class="px-3 float-right" type="button" v-on:click="editItem(item)">
@@ -71,7 +83,8 @@ export default {
         items: [],
         submitButtonText: 'Add Item',
         editing: null,
-        imageError: ''
+        imageError: '',
+        selectedTags: []
     }),
     methods: {
         submit () {
@@ -97,15 +110,19 @@ export default {
                 }
             })
         },
-        deleteItem (delId) {
+        deleteItem (item) {
+            let userConfirm = window.confirm(`Are you sure you want to delete '${item.name}?'`)
+            if (userConfirm === false) {
+                return
+            }
             this.$apollo.mutate({
                 mutation: DELETE_ITEM_MUTATION,
                 variables: {
-                    id: delId
+                    id: item.id
                 }
             }).then(res => {
                 if (res['data']['DeleteItem']['success']) {
-                    const itemsIndex = this.items.findIndex(item => item.id === delId)
+                    const itemsIndex = this.items.findIndex(x => x.id === item.id)
                     this.items.splice(itemsIndex, 1)
                 }
             })

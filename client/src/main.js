@@ -6,9 +6,11 @@ import { createProvider } from './vue-apollo'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import VoerroTagsInput from '@voerro/vue-tagsinput'
 
 library.add(faTrash)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
+Vue.component('tags-input', VoerroTagsInput)
 
 Vue.config.productionTip = false
 

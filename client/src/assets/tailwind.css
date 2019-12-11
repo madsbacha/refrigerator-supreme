@@ -11,7 +11,7 @@
 }
 
 .input {
-    @apply px-3 py-2 bg-gray-200 rounded shadow;
+    @apply px-3 py-2 bg-white rounded shadow;
 }
 
 .btn-submit {
@@ -23,5 +23,5 @@
 }
 
 .list-item {
-    @apply text-lg px-4 py-3 bg-pink-500 rounded-lg mb-2
+    @apply text-lg px-4 py-3 bg-pink-400 rounded-lg mb-2
 }
