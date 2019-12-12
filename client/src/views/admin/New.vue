@@ -133,6 +133,7 @@ export default {
             this.energy = ''
             this.size = ''
             this.imageURL = ''
+            this.selectedTags = []
             this.submitButtonText = 'Add Item'
         },
         editItem (item) {
@@ -171,5 +172,13 @@ export default {
 
     .tags-input-remove:before, .tags-input-remove:after {
         background: #42b983;
+    }
+
+    .tags-input input:focus + .tags-input {
+        box-shadow: 0 0 3pt #42b983;
+    }
+
+    .tags-input-wrapper-default {
+        border: none;
     }
 </style>
