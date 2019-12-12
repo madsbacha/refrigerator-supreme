@@ -47,7 +47,7 @@
                 </div>
             </div>-->
             <div class="flex">
-                <button type="submit" class="btn-submit w-1/2 hover:bg-blue-700">{{ submitButtonText }}</button>
+                <button type="submit" class="btn-submit w-1/2">{{ submitButtonText }}</button>
                 <button type="button" class="btn-secondary" @click="resetForm">Clear</button>
             </div>
         </div>
