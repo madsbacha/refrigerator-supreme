@@ -6,6 +6,7 @@
 
 <script>
 import '@/assets/tailwind.css'
+import '@voerro/vue-tagsinput/dist/style.css'
 
 export default {
     name: 'App',

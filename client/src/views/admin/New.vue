@@ -159,6 +159,17 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+    .tags-input-root {
+        background: transparent;
+        padding: 0;
+    }
 
+    .tags-input-typeahead-item-highlighted-default {
+        background-color: #42b983;
+    }
+
+    .tags-input-remove:before, .tags-input-remove:after {
+        background: #42b983;
+    }
 </style>
